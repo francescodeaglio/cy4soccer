@@ -11,10 +11,10 @@ def load_new_team(game, nation):
     preprocess_lineups(str(game), nation)
     preprocess_passes(str(game),nation)
 
-    uri = st.session_state["uri"]
+    uri = st.secrets["uri"]
 
     user = "neo4j"
-    password = st.session_state["password"]
+    password = st.secrets["password"]
 
     app = App(uri, user, password)
 
@@ -74,10 +74,10 @@ def cypherify(string, team = None, extra_filter = None):
 
 if __name__ == '__main__':
 
-    uri = st.session_state["uri"]
+    uri = st.secrets["uri"]
 
     user = "neo4j"
-    password = st.session_state["password"]
+    password = st.secrets["password"]
     app = App(uri, user, password)
 
     teams = ["Belgium", "Denmark"]
