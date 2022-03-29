@@ -1,3 +1,5 @@
+
+
 def isNet(array):
     vect = [0]*len(array)
     return pass_net_check(1, len(array),vect, array)
@@ -42,3 +44,5 @@ def read(path):
     '''
     with open(path, 'r') as f:
         return f.read()
+
+
