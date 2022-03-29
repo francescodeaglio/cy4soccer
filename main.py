@@ -74,9 +74,10 @@ def cypherify(string, team = None, extra_filter = None):
 
 if __name__ == '__main__':
 
-    uri = "neo4j+s://00e145e7.databases.neo4j.io"
+    uri = st.session_state["uri"]
+
     user = "neo4j"
-    password = "tMqTKGoZ0MV3k5sCX4huR2zl7FXazO6g3KtpNR5bYzA"
+    password = st.session_state["password"]
     app = App(uri, user, password)
 
     teams = ["Belgium", "Denmark"]
