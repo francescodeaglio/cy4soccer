@@ -71,45 +71,106 @@ def cypherify(string, team = None, extra_filter = None):
 
     return query
 
+def first_form():
 
-if __name__ == '__main__':
+    with st.form("Pattern"):
+        c = st.columns(2)
+        st.session_state["pattern"] = c[0].text_input("Search for a pattern: ")
 
+        st.session_state["team"] = c[1].selectbox("Specify Team: ", ["Both", *teams])
+        if st.session_state["team"] == "Both":
+            st.session_state["team"] = None
+
+        advanced = st.checkbox("Set advanced parameters")
+        submit = st.form_submit_button("Next step")
+    if advanced and submit:
+        st.session_state["step"] = 1
+        st.experimental_rerun()
+    if submit:
+        st.session_state["step"] = 2
+        st.experimental_rerun()
+
+def second_form():
+
+    if st.session_state["team"] == "Belgium":
+
+        fp = open("players_belgium.txt", "r")
+        players = [ p.strip() for p in fp]
+
+    elif st.session_state["team"] == "Denmark":
+
+        fp = open("players_denmark.txt", "r")
+        players = [ p.strip() for p in fp]
+
+    else:
+        fp = open("players_belgium.txt", "r")
+        players_belgium = [p.strip() for p in fp]
+        fp = open("players_denmark.txt", "r")
+        players_denmark = [p.strip() for p in fp]
+
+
+        players =  players_belgium + players_denmark
+
+
+
+
+
+    with st.form("Advanced"):
+        options = ["Unconstrained"] + players
+
+        letters = sorted(list(set(st.session_state["pattern"])))
+        c = st.columns(2)
+        bounding = {}
+        for letter in letters:
+            bounding[letter] = c[(letters.index(letter)) % 2].selectbox("Insert player name for " + letter, options)
+
+        print(bounding)
+        st.session_state["bounding"] = bounding
+        query = st.form_submit_button("Query the data!")
+    if query:
+        st.session_state["step"] = 2
+        st.experimental_rerun()
+
+def query():
     uri = st.secrets["uri"]
 
     user = "neo4j"
     password = st.secrets["password"]
     app = App(uri, user, password)
 
+    extra_filter = " ".join( [" and " + letter + '.name = "' + st.session_state["bounding"][letter] + '"' for letter in st.session_state["bounding"] if st.session_state["bounding"][letter] is not "Unconstrained"])
+    print(extra_filter)
+    query = cypherify(st.session_state["pattern"], st.session_state["team"], extra_filter)
+
+    if query:
+        app.find_pattern(query, st.session_state["pattern"])
+        if st.button("New query"):
+
+            del st.session_state["step"]
+            st.experimental_rerun()
+
+
+if __name__ == '__main__':
+
+
     teams = ["Belgium", "Denmark"]
     st.title(" vs ".join(teams))
 
-    with st.form("Pattern"):
-        c = st.columns(2)
-        pattern = c[0].text_input("Search for a pattern: ")
+    if "step" not in st.session_state:
+        st.session_state["step"] = 0
+        st.session_state["bounding"] = []
 
-        team = c[1].selectbox("Specify Team: ", ["Both", *teams])
-        if team == "Both":
-            team = None
+    if st.session_state["step"] == 0:
+        first_form()
 
-        st.caption("Bound nodes")
-        c = st.columns(2)
-        bounding = {}
+    if st.session_state["step"] == 1:
+        second_form()
 
-        letters = ["A", "B", "C", "D", "E", "F"]
-        for letter in ["A", "B", "C", "D", "E", "F"]:
-            bounding[letter] = c[(letters.index(letter))%2].text_input("Insert player name for "+letter)
-
-        a = st.form_submit_button("Start query")
-
-    if a:
-        extra_filter = " ".join([" and "+letter+'.name = "'+ bounding[letter] +'"' for letter in bounding if bounding[letter] is not ""])
-        query = cypherify(pattern, team, extra_filter)
+    if st.session_state["step"] == 2:
+        query()
 
 
 
-        if query:
-            app.find_pattern(query, pattern)
 
 
-    app.close()
 
