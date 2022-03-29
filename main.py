@@ -2,8 +2,7 @@ import streamlit as st
 import json
 
 from rumble_preprocessing import preprocess_lineups, preprocess_passes
-from utils import isNet
-
+from utils import isNet, distinct_letters, first_new_letter
 
 from neo4j_app import App
 
@@ -39,10 +38,11 @@ def add_all_passages(app, team):
 def cypherify(string, team = None, extra_filter = None):
     letters = list(string)
     if not isNet(letters):
-        print("Invalid passage network")
+
+        st.error(string+" is an invalid passage network!")
         return None
-    else:
-        print("Valid pattern")
+
+
     if team:
         query = "MATCH (A:"+team+")"
     else:
@@ -112,9 +112,6 @@ def second_form():
         players =  players_belgium + players_denmark
 
 
-
-
-
     with st.form("Advanced"):
         options = ["Unconstrained"] + players
 
@@ -144,10 +141,47 @@ def query():
 
     if query:
         app.find_pattern(query, st.session_state["pattern"])
-        if st.button("New query"):
+    if st.button("New query"):
 
-            del st.session_state["step"]
-            st.experimental_rerun()
+       del st.session_state["step"]
+       st.experimental_rerun()
+
+def search_pass_net(i, n, vect, app, silent):
+    if i == 1:
+        vect[i - 1] = "A"
+        search_pass_net(2, n, vect, app, silent)
+    elif i == 2:
+        vect[i - 1] = "B"
+        search_pass_net(3, n, vect, app, silent)
+    elif i == n + 1:
+        pattern = "".join(vect)
+        query = cypherify(pattern)
+
+        app.find_pattern(query, pattern, silent)
+
+        return
+    else:
+        for l in distinct_letters(vect, i - 2):
+            vect[i - 1] = l
+            search_pass_net(i + 1, n, vect, app, silent)
+        vect[i - 1] = first_new_letter(vect, i - 1)
+        search_pass_net(i + 1, n, vect, app, silent)
+
+def find_all_patterns():
+    with st.form("Max length"):
+        c1, c2 = st.columns(2)
+        val = c1.text_input("Pattern length (min=3)", value=3)
+        val = int(val)
+        silent = c2.checkbox("Show only count")
+        sub = st.form_submit_button("Search")
+
+    if sub and val >= 3:
+        uri = st.secrets["uri"]
+
+        user = "neo4j"
+        password = st.secrets["password"]
+        app = App(uri, user, password)
+        search_pass_net(1, val, [0] * val, app, silent)
 
 
 if __name__ == '__main__':
@@ -156,18 +190,25 @@ if __name__ == '__main__':
     teams = ["Belgium", "Denmark"]
     st.title(" vs ".join(teams))
 
-    if "step" not in st.session_state:
-        st.session_state["step"] = 0
-        st.session_state["bounding"] = []
+    with st.expander("Query"):
+        if "step" not in st.session_state:
+            st.session_state["step"] = 0
+            st.session_state["bounding"] = []
 
-    if st.session_state["step"] == 0:
-        first_form()
+        if st.session_state["step"] == 0:
+            first_form()
 
-    if st.session_state["step"] == 1:
-        second_form()
+        if st.session_state["step"] == 1:
+            second_form()
 
-    if st.session_state["step"] == 2:
-        query()
+        if st.session_state["step"] == 2:
+            query()
+
+    with st.expander("Search all possible passing nets"):
+        find_all_patterns()
+                
+                
+        
 
 
 

@@ -53,18 +53,24 @@ class App:
             raise
 
 
-    def find_pattern(self, query_string, pattern):
+    def find_pattern(self, query_string, pattern, silent = False):
         with self.driver.session() as session:
             result = session.read_transaction(self._find_and_return_pattern, query_string)
-            for row in result:
+
+            if len(result)==0:
+                st.error("No match for pattern "+pattern)
+            else:
+                st.success("Pattern "+pattern+" matched "+str(len(result))+" times!")
+            if not silent:
+                for row in result:
 
 
-                string = "{" + "}->{".join(list(pattern)) + "}"
-                diz = {}
-                for letter in pattern:
-                    diz[letter] = row[letter+".name"]
-                string = string.format(**diz)
-                st.write("Possession "+row["p0.possession"]+":\t"+string)
+                    string = "{" + "}->{".join(list(pattern)) + "}"
+                    diz = {}
+                    for letter in pattern:
+                        diz[letter] = row[letter+".name"]
+                    string = string.format(**diz)
+                    st.write("Possession "+row["p0.possession"]+":\t"+string)
 
     @staticmethod
     def _find_and_return_pattern(tx, query_string):
