@@ -70,7 +70,8 @@ class App:
                     for letter in pattern:
                         diz[letter] = row[letter+".name"]
                     string = string.format(**diz)
-                    st.write("Possession "+row["p0.possession"]+":\t"+string)
+                    st.write("Possession "+str(row["p0.possession"])+":\t"+string)
+
 
     @staticmethod
     def _find_and_return_pattern(tx, query_string):
