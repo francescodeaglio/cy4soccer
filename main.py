@@ -38,7 +38,6 @@ def add_all_passages(app, team):
 def cypherify(string, team = None, extra_filter = None):
     letters = list(string)
     if not isNet(letters):
-
         st.error(string+" is an invalid passage network!")
         return None
 
@@ -68,7 +67,7 @@ def cypherify(string, team = None, extra_filter = None):
 
     for i in s:
         query += ", " + i + ".name"
-
+    print(query)
     return query
 
 def first_form():
