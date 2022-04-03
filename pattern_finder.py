@@ -96,16 +96,12 @@ def first_form():
     if advanced and submit:
         if len(st.session_state["pattern"]) < 2:
             st.error("Please insert a valid pattern")
-        elif st.session_state["team"] not in [el.upper() for el in game.split("-")]:
-            st.error("Team must have played the selected match :)")
         else:
             st.session_state["step"] = 1
             st.experimental_rerun()
     if submit:
         if len(st.session_state["pattern"]) < 2:
             st.error("Please insert a valid pattern")
-        elif st.session_state["team"] not in [el.upper() for el in game.split("-")]:
-            st.error("Team must have played the selected match :)")
         else:
             st.session_state["step"] = 2
             st.experimental_rerun()
