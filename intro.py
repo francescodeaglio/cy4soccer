@@ -4,12 +4,19 @@ import base64
 def intro():
     st.title("Cy4soccer")
     st.write("""
-    Neo4j è un graph database in cui i dati sono rappresentati come grafi. Un grafo è formato da due elementi principali: i nodi e le relazioni che li congiungono. 
-    Ogni nodo e ogni relazione hanno una Label (ad esempio la nazione d'appartenenza) e delle properties (ad esempio il nome del giocatore)
-    In questa veloce intro verrà mostrato come sono rappresentati i dati e come scrivere query in Cypher.
-    Cypher è un linguaggio di query dichiarativo (specifichi cosa vuoi che sia fatto, non come) in cui si matchano pattern 
+    Neo4j is a database in which data is represented as graphs. A graph is made up of two main elements: nodes and the relationships that join them. 
+    Each node and each relationship can have one or more labels (for example the nation of a player) and properties (for example the player's name and jersey number).
     
-    Ad esempio:
+    This is an image of 25 nodes in the database. In total there are more than 600 nodes and about 60 thousand relationships stored.
+    """)
+
+    st.image("media/overall.jpeg")
+
+    st.write("""
+    In this quick intro will be shown how data are represented and how to write simple queries in Cypher.
+    Cypher is a declarative query language (you specify what you want done, not how) specifically designed to match patterns.
+    
+    For example:
     """)
 
     st.code("""
@@ -17,27 +24,29 @@ def intro():
 WHERE a.name = "Gianluigi Donnarumma" and b.name = "Bukayo Saka"
 RETURN g
     """)
-    st.write("Ritorna tutte le gare di Euro2020 in cui Donnarumma ha giocato contro Saka. Nelle prossime sezioni vedremo come arrivare a scrivere questa query.")
+    st.write("It returns all the Euro2020 matches in which Donnarumma played against Saka. In the next sections we will see the main ingredients to get to write this query.")
     st.image("media/donnarumma_saka.jpeg")
 
     st.header("Data Model")
     st.subheader("Nodes")
     st.write("""
-    Come scritto in precedenza, i componenti principali sono i nodi e le relationships. Vediamo ora i nodi.
-    Ci sono tre categorie di nodi: Partite, Giocatori e Speciali
+    As written earlier, the main components are nodes and relationships. Let's now look at nodes.
+    There are three categories of nodes: Matches, Players and Specials.
     """)
 
     with st.expander("Matches"):
         st.write("""
-        Tutti i match sono etichettati con la label GAME (MATCH è una parola che fa parte della sintassi di cypher). 
-        Ad esempio la query sottostante ritorna tutti i match di Euro2020
+        All matches are labeled with the label GAME (MATCH is a word that is part of the cypher syntax). 
+        
+        
+        For example, the following query returns all matches of Euro2020
         """)
         st.code("""
 MATCH (a:GAME)
 RETURN a        
         """)
         st.write("""
-        Per controprova possiamo contare quanti match ci sono nel database e controllare che siano effettivamente 51.
+        As a countercheck we can count how many matches there are in the database and check that there are actually 51.
         """)
         st.code("""
 MATCH (a:GAME)
@@ -47,7 +56,7 @@ RETURN count(a)
         
         """)
         st.write("""
-        Ogni nodo GAME ha delle properties, che possiamo vedere ad esempio per la finale.
+        Each GAME node has several properties, which we can see for example for the final.
         """)
         st.json("""
        {
@@ -71,19 +80,18 @@ RETURN count(a)
 "home_team_manager": "Roberto Mancini"
   }
 """)
-        st.write("I dati mostrati sono esattamente gli stessi del file matches.json di Statsbomb")
+        st.write("The data shown are taken from the matches.json file of Statsbomb, taking into account the constraints of neo4j (for example the properties can be atomic types (float, integer, strings...) or lists, but not dictionaries)")
 
         st.write("""
-        Nella clausola where è possibile specificare dei filtri su questi attributi. Ad esempio, per vedere tutte le gare giocate alle 21 si può usare la seguente query
-        """)
+        In the WHERE clause it is possible to specify filters on these attributes. For example, to see all the matches played at 9 p.m. we can use the following query""")
         st.code("""
 MATCH (a:GAME)
 WHERE a.kick_off = "21:00:00.000"
 RETURN count(a) 
 """)
-        st.write("E si scopre che 24 delle 51 gare son state giocate alle 21.")
+        st.write("And it turns out that 24 of the 51 matches were played at 9pm.")
         st.write("""
-        Inoltre è possibile ritornare solo delle proprietà, ad esempio per ottenere i risultati delle gare giocate alle 21
+        Moreover it is possible to return only some properties, for example to obtain the results of the games played at 21:00
         """)
         st.code("""
         MATCH (a:GAME)
@@ -93,9 +101,9 @@ RETURN a.home_score, a.away_score
 
     with st.expander("Players"):
         st.write("""
-        Ogni player ha due labels PLAYERS e il nome della squadra d'appartenza in maiuscolo (ex ITALY, SWITZERLAND..).
-        Nel nodo sono memorizzate solo le informazioni generali, mentre per vedere le info di un giocatore in una determinata partita viene usata la relazione HAS_PLAYED
-        Vediamo ad esempio quelle di Ciro Immobile
+        Each player has two labels: PLAYERS and the team name in uppercase (ex ITALY, SWITZERLAND..).
+        Only general information is stored in the node, while to see the info of a player in a specific match the HAS_PLAYED relation is used.
+        Let's see for example those of Ciro Immobile
         """)
 
         st.code("""
@@ -103,22 +111,22 @@ MATCH (c:ITALY)
 WHERE c.name = "Ciro Immobile"
 RETURN c
         """)
-        st.write("Che ritorna")
+        st.write("Which returns")
         st.json("""{
 "country": "Italy",
 "player_id": 7788,
 "name": "Ciro Immobile",
 "jersey_number": 17
   }""")
-        st.warning("I nomi son stati 'inglesizzati'.....")
+        st.warning("""In the original json file the names contain accented letters and special characters that are not accepted by the database. Therefore all names have been "Englishified". For example, Kylian Mbappé was transformed into Kylian Mbappe""")
 
     with st.expander("Special nodes"):
         st.write("""
-        Ci sono due extra nodi, START ed END che vengono usati per modellare rispettivamente l'inizio e la fine delle azioni.
-        Ad esempio un tiro è modellato come un arco che parte dal giocatore che l'ha effettuato e finisce nel nodo END, mentre una palla recuperata è rappresentata da un arco che parte da
-        START e raggiunge il giocatore che l'ha recuperata.
+        There are two extra nodes, START and END that are used to model the start and end of actions respectively.
+        For example, a shot is modeled as an arc that starts from the player who made it and ends in the END node, while a recovered ball is represented by an arc that starts from
+        START and reaches the player who retrieved it.
         
-        Ecco una veloce query per vedere questi due archi all'opera
+        Here is a quick query to see these two arcs at work
         """)
 
         st.code("""
@@ -127,24 +135,24 @@ WHERE s.outcome = "Goal"
 RETURN a,s,e
         """)
         st.write("""
-        E ritorna i goal segnati da giocatori svizzeri, includendo i calci di rigore
+        And returns the goals scored by Swiss players, including penalty kicks
         """)
         st.image("media/endnode.png")
-        st.write("Mentre per escludere i calci di rigore bisogna ricordarsi che StatsBomb codifica i rigori con period=5 "
-                 "e quindi è necessario aggiungere una clausola nel where")
+        st.write("While to exclude the penalty kicks it is necessary to remember that StatsBomb encodes the penalties with period=5 "
+                 " and therefore it is necessary to add a clause in the WHERE")
 
         st.code("""
         MATCH (a:SWITZERLAND)-[s:SHOT]->(e:END)
-WHERE s.outcome = "Goal" and s.period <> "5"
+WHERE s.outcome = "Goal" and s.period <> 5
 RETURN a,s,e
         """)
     st.subheader("Relationships")
-    st.write("L'altro tassello fondamentale sono le relationships, che collegano i nodi tra di loro.")
+    st.write("The other key piece are the relationships, which connect the nodes together.")
 
     with st.expander("HAS_PLAYED, relationship between players and games"):
-        st.write("""Nei nodi, i giocatori hanno come properties solo delle informazioni
-        generali, per le informazioni specifiche di una partita bisogna far riferimento a questa categoria di relationships.
-        Ad esempio, per vedere tutte le gare che ha giocato Harry Kane basta eseguire la seguente query
+        st.write("""In the nodes, the players have as properties only general information
+        general, for the specific information of a match you have to refer to this category of relationships.
+        For example, to see all the matches played by Harry Kane just run the following query
         """)
 
         st.code("""
@@ -155,10 +163,10 @@ RETURN g,a,r
 
         st.image("media/harrykane.png")
         st.write("""
-        Ogni arco ha delle properties specifiche per il giocatore PLAYER, prese dal file lineups/MATCH.json 
-        dove PLAYER e MATCH sono i due nodi d'interesse (nell'esempio sopra a è PLAYER, g è MATCH).
+        Each arc has specific properties for the player PLAYER, taken from the file lineups/MATCH.json 
+        where PLAYER and MATCH are the two nodes of interest (in the example above "a" is PLAYER, "g" is MATCH).
         
-        Ad esempio le properties tra Harry Kane e la Finale son le seguenti.
+        For example, the properties between Harry Kane and the Final are the following.
         """)
 
         st.json("""
@@ -171,7 +179,7 @@ RETURN g,a,r
 }"""
         )
         st.write("""
-        E' inoltre possibile vedere tutti i giocatori e le relazioni HAS_PLAYED clickando sul seguente link
+        It is also possible to see all the players and HAS_PLAYED relationships by clicking on the following link
         """)
         link = '[Show svg file (new window)](https://fili.tk/ca/graph.svg)'
         st.markdown(link, unsafe_allow_html=True)
@@ -179,11 +187,13 @@ RETURN g,a,r
     with st.expander("PASS, relationship between players"):
 
         st.write("""
-        I passaggi sono il motivo per cui questo modello è stato costruito. Ogni passaggio effettuato è una
-        relationship che connette chi passa a chi ha ricevuto.
-        Nel database ci sono 49041 passaggi quindi è importante sapere come son rappresentati.
-        Innanzi tutto vediamo quante volte Jorginho ha passato la palla a Verratti (ma non viceversa) in questo Europeo.
-        Per farlo eseguiamo la seguente query""")
+        The passes are the reason this model was built. Every passage carried out is a
+        relationship that connects the passer to the receiver.
+        
+        
+        In the database there are almost 50k passes so it is important to know how they are represented.
+        First of all let's see how many times Jorginho passed the ball to Verratti (but not vice versa) in this European Championship.
+        To do this we run the following query""")
 
         st.code("""
 MATCH (a:ITALY)-[p]->(b:ITALY)
@@ -191,13 +201,13 @@ WHERE a.name = "Jorge Luiz Frello Filho" and b.name = "Marco Verratti"
 RETURN COUNT(p)
         """)
         st.write("""
-        Scopriamo che son stati effettuati 75 passaggi. 
-        Ora siamo interessati a vedere quanti di questi passaggi sono avvenuti nella finale, possiamo farlo
-        sfruttando il campo 
+        We find that 75 passes have been made. 
+        Now we are interested in seeing how many of these passes have been made in the final, we can do it
+        using the field 
         """)
         st.code("match_id")
         st.write("""
-        della relationship. Il codice quindi diventa
+        of the relationship. The code then becomes
         """)
 
         st.code("""
@@ -208,13 +218,14 @@ RETURN COUNT(p)
                 """)
 
         st.write("""
-        E scopriamo che solo 20 dei 75 passaggi son stati effettuati nella finale. A questo punto possiamo essere interessati
-        a sapere quanti di questi passaggi sono avvenuti in uno specifico possesso.
-        Per fare ciò, si può utilizzare il campo
+        And we find that only 20 of the 75 passes were made in the final. 
+        
+        At this point we can be interested to know how many of these passes have been made in a specific possession.
+        To do this, we can use the field
         """)
         st.code("possession")
         st.write("""
-        della relationship. Il codice quindi diventa
+        of the relationship. The code then becomes
         """)
         st.code("""
 MATCH (a:ITALY)-[p]->(b:ITALY)
@@ -223,8 +234,8 @@ and p.match_id = 3795506 and p.possession = 53
 RETURN COUNT(p)     
         """)
         st.write("""
-        Solo due volte Jorginho ha passato la palla a Verratti nel 53esimo possesso della finale.
-        Ogni possesso ha ulteriori importanti proprietà, ad esempio
+        Only twice did Jorginho pass the ball to Verratti in the 53rd possession of the final.
+        Each possession has additional important properties, e.g.
         """)
         st.json(
             """
@@ -256,15 +267,15 @@ RETURN COUNT(p)
 "height": "Ground Pass"
   }
             """)
-        st.write("""Ad esempio, order serve per identificare passaggi successivi, mentre possession_length serve per stabilire
-        se è l'ultimo passaggio del possesso (if order==possession_length)"""
+        st.write("""For example, order is used to identify successive steps, while possession_length is used to determine
+        if it is the last possession step (if order==possession_length)"""
                  )
 
     with st.expander("Special relationships between players and START/END nodes"):
 
         st.write("""
-        Ci sono diverse relationship per modellare l'inizio e la fine di un'azione. Ad esempio, 
-        se siamo interessati a scoprire chi ha fatto l'ultimo passaggio prima dei gol della finale possiamo scrivere la seguente
+        There are several relationships for modeling the beginning and end of an action. For example, 
+        if we are interested in finding out who made the last pass before the goals of the final we can write the following
         query
         """)
         st.code("""
@@ -275,42 +286,51 @@ RETURN p
         """)
         st.image("media/goalengland.jpeg")
         st.write("""
-        In cui non viene mostrato il goal di Bonucci in quanto ha recuperato palla dopo che è sbattuta sul palo.
-        Tornano molto comodi gli attributi possession_length per controllare che il tiro sia partito dal giocatore corretto
-        (ad esempio, nel codice prima, se Luke Shaw avesse ricevuto un altro passaggio da Kevin Trippier nella stessa azione, 
-        questo verrebbe mostrato togliendo p1.order = p1.possession_length anche se non è il passaggio di interesse.
-        Un'altra proprietà interessante è che l'attributo order parte da uno ogni azione, quindi se vogliamo vincolare
-        un passaggio ad essere il primo dell'azione basta controllare
+        In which Bonucci's goal is not shown because he recovered the ball after it hit the post.
+
+
+        The possession_length attribute is very useful to check that the shot is coming from the correct player.
+        (for example, in the code before, if Luke Shaw had received another pass from Kieran Trippier in the same action, 
+        this would be shown by removing p1.order = p1.possession_length even if it is not the pass of interest).
+        
+        
+        Another interesting property is that the order attribute starts at one every action, so if we want to constrain
+        a step to be the first of the action just check
         """)
         st.code("p1.order = 1")
 
     st.subheader("User Defined Functions")
-    st.write("Inoltre son state definite delle funzioni specifiche per il corso, per facilitare la ricerca di pattern")
+    st.write("In addition, course-specific functions have been defined to facilitate pattern searches.")
     with st.expander("User defined functions for pattern matching"):
         st.write("""
-        L'intento iniziale di questa dashboard era quello di trovare pattern nei passaggi in un modo efficiente.
+        The initial intent of this dashboard was to find patterns in passes in an efficient way.
         
-        Questo è molto facile con Cypher ma bisogna controllare una serie di parametri, ovvero che giocatori con lettere
-        diverse siano diversi e che i passaggi siano consecutivi all'interno dello stesso match e dello stesso possesso.
+        This is very easy with Cypher but you need to check a number of parameters, namely that players with different letters
+        are different and that the passes are consecutive within the same match and the same possession.
         
-        Per semplificare la sintassi abbiamo creato due UDF: sa.differentPlayers and sa.consecutivePossession
-        (dove sa sta per Soccer Analytics)
+        To simplify the syntax we have created two UDFs: sa.differentPlayers and sa.consecutivePossession
+        (where sa stands for Soccer Analytics)
         
+        """)
+        st.warning("""
+        These functions do not allow for predicate pushdown by the Cypher optimizer, 
+        so they are inefficient for the patterns of interest. 
+        However, I leave the explanation and reference to better understand what properties 
+        are involved. An automated tool that writes these queries can be used in the side menu.
         """)
         st.markdown("""##### sa.differentPlayers""")
-        st.write("""Serve per controllare che i giocatori siano effettivamente diversi. 
-        Se ad esempio sono interessato a cercare il pattern ABABCA devo assicurarmi che 
-        A, B e C sian diversi (mentre che le tre A che appaiono siano dello stesso giocatore è gestito in automatico da Cypher)
-        Per farlo basta invocare la seguente funzione che ritorna true solo se i passaggi sono all'interno dello stesso possesso
-        """)
+        st.write("""This is to check that the players are actually different. 
+        For example, if I'm interested in looking for the ABABCA pattern, I have to make sure that 
+        A, B and C are different (while Cypher automatically checks that the three A's are from the same player).
+        To do this just invoke the following function that returns true only if the passes are within the same possession """)
         st.code("sa.differentPlayers([A,B,C])"
                  )
-        st.warning("Attenzione a non mettere sa.differentPlayers([A,B,A,B,C,A]) che ritornerà sempre falso")
+        st.warning("Be careful not to put sa.differentPlayers([A,B,A,B,C,A]) which will always return false")
         st.markdown("""##### sa.consecutivePossession""")
         st.write("""
-        Serve a controllare che la rete di passaggi avvenga nello stesso possesso e sia consecutiva. In questo caso il controllo
-        è sugli archi, non sui nodi. Quindi nel pattern di prima, chiamando gli archi A-p1->B-p2->A-p3->B-p4->C-p5->A
-        il controllo è il seguente
+        It is used to check that the network of passes occurs in the same possession and is consecutive. In this case the control
+        is on the arcs, not on the nodes. So in the pattern of before, calling the arcs A-p1->B-p2->A-p3->B-p4->C-p5->A
+        the control is as follows
         """)
         st.code("""
         sa.consecutivePossession([p1,p2,p3,p4,p5])
@@ -329,12 +349,19 @@ RETURN p
         To avoid this unexpected behaviour we have created a tool that, given the pattern to match, returns the ready-to-run 
         Cypher query. We suggest to use UDFs only for short paths, while for longer is not so efficient. 
         
-        The tool to create the aforementioned queries is in the section pattern finder on the left menù.
+        The tool to create the aforementioned queries is in the section pattern finder on the left menu.
         
         Before running the queries, you can modify them by adding filters in the where clause (for example if you want to find
         all patterns ABAC ended in goals you have to add an extra relationship -[s:SHOT]->(:END) and check that the shot
         is in the same possession, game and the outcome is "Goal"
         """)
+
+    with st.expander("Tools"):
+
+        st.write("""
+        Integrating Cypher into a programming language is extremely simple, so interesting tools can be written by accessing the database. Examples are shown in the side menu, if you have more reviews send them to me via email (fdeaglio@ethz.ch) and I'll be happy to mention you as a contributor.
+        """)
+
 
 
 
