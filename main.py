@@ -93,18 +93,18 @@ def second_form():
 
     if st.session_state["team"] == "Belgium":
 
-        fp = open("players_belgium.txt", "r")
+        fp = open("data/players_static/players_belgium.txt", "r")
         players = [ p.strip() for p in fp]
 
     elif st.session_state["team"] == "Denmark":
 
-        fp = open("players_denmark.txt", "r")
+        fp = open("data/players_static/players_denmark.txt", "r")
         players = [ p.strip() for p in fp]
 
     else:
-        fp = open("players_belgium.txt", "r")
+        fp = open("data/players_static/players_belgium.txt", "r")
         players_belgium = [p.strip() for p in fp]
-        fp = open("players_denmark.txt", "r")
+        fp = open("data/players_static/players_denmark.txt", "r")
         players_denmark = [p.strip() for p in fp]
 
 
