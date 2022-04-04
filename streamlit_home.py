@@ -1,15 +1,18 @@
 import streamlit as st
 from intro import intro
 from pattern_finder import pattern_finder
-from cypher_box import cypher_box
 from pcapage import pca_page
 from sunburst import sunburst
+from writeYourOwnQuery import wyoq
 if __name__ == '__main__':
     st.sidebar.title("Cy4soccer")
-    page = st.sidebar.selectbox("Select the page", ["Intro", "Pattern Finder", "Sunburst diagram", "PCA", "Credits"])
+    page = st.sidebar.selectbox("Select the page", ["Intro", "Pattern Finder", "Sunburst diagram", "PCA", "Write you own query", "Credits"])
 
     if page == "Intro":
         intro()
+
+    if page == "Write you own query":
+        wyoq()
 
     if page == "Pattern Finder":
         pattern_finder()

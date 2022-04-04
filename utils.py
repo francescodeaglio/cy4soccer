@@ -1,4 +1,4 @@
-
+import streamlit as st
 
 def isNet(array):
     vect = [0]*len(array)
@@ -121,5 +121,42 @@ def getGamesList():
  'Sweden-Poland': 3788776,
  'Belgium-Russia': 3788743,
  'Wales-Switzerland': 3788744}
+
+
+def cypherify(string, team = None, extra_filter = None):
+    letters = list(string)
+    if not isNet(letters):
+        st.error(string+" is an invalid passage network!")
+        return None
+
+
+    if team:
+        query = "MATCH (A:"+team+")"
+    else:
+        query = "MATCH (A)"
+    for i in range(len(string) - 1):
+        query += "-[p" + str(i) + "]->(" + letters[i + 1] + ")"
+    query += "\nWHERE "
+    first = True
+    for i in range(len(string) - 2):
+        if first:
+            query += "toInteger(p" + str(i) + ".order) + 1 = toInteger(p" + str(i + 1) + ".order)"
+            first = False
+        else:
+            query += " and toInteger(p" + str(i) + ".order) + 1 = toInteger(p" + str(i + 1) + ".order)"
+    query += " and p0.possession = p" + str(len(string) - 2) + ".possession"
+    unorderedPairGenerator = ((x, y) for x in set(letters) for y in set(letters) if y > x)
+    query += " and " + " and ".join([x + ".name <>" + " " +y + ".name" for x, y in list(unorderedPairGenerator)])
+    if extra_filter:
+        query+= extra_filter
+    query += "\nRETURN A.name"
+    s = set(letters)
+    s.discard("A")
+
+    for i in s:
+        query += ", " + i + ".name"
+    print(query)
+    return query
+
 
 
