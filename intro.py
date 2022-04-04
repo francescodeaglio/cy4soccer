@@ -1,5 +1,4 @@
 import streamlit as st
-import base64
 
 def intro():
     st.title("Cy4soccer")
