@@ -13,6 +13,8 @@ def sunburst():
 In order to represent this, we have used the sunburst diagram. To speed up the GUI we have pre-calculated the values for all teams, while if you are only interested in your match you can edit the notebook on github.
 
 Two graphs are shown, which I think are fairly important. The first one matches patterns at any point in the action. The second one is a subset of the first one, where player A is the one who starts the action.
+    
+    The graphs are interactive: For example, if you click on ABA, it shows you the graph with ABA as the starting pattern (thus removing its "brothers" ABC and AB-lost).
     """)
 
     fp = open(os.path.join(os.curdir, "data", "sunburst",  "sunburst_unconstrained.json"), "r")
@@ -44,7 +46,7 @@ Two graphs are shown, which I think are fairly important. The first one matches 
                       color=prefixes
                       )
     st.plotly_chart(fig)
-    st.subheader("A first in the possession")
+    st.subheader("Player 'A' first in the possession")
     patternsb = []
     prefixesb = []
     valuesb = []
