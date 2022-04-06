@@ -7,10 +7,9 @@ def wyoq():
 
     with st.expander("Neo4j console"):
         st.write("""
-        Potete scrivere le query direttamente sulla console di Neo4j 
-        che fornisce l'interfaccia grafica da cui son prese tutte le immagini nella sezione Intro.
-        
-        Per accedervi, andate al link
+        You can write your queries directly on the Neo4j console that provides the graphical interface from which all the images in the Intro section are taken.
+
+    To access it, go to the link
         """)
         st.code("https://browser.neo4j.io/")
         st.write("""
