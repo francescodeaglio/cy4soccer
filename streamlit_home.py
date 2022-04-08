@@ -7,11 +7,12 @@ from heatmaps import heatmap
 from writeYourOwnQuery import wyoq
 if __name__ == '__main__':
     st.sidebar.title("Cy4soccer")
-    page = st.sidebar.selectbox("Select the page", ["Intro", "Pattern Finder", "Sunburst diagram", "PCA", "Heatmaps", "Write you own query", "Credits"])
+    page = st.sidebar.selectbox("Select the page", ["Intro", "Pattern Finder", "Sunburst diagram", "PCA", "Heatmap", "Write you own query", "Credits"])
 
     if page == "Intro":
         intro()
-    if page == "Heatmaps":
+    
+    if page == "Heatmap":
         heatmap()
 
     if page == "Write you own query":
