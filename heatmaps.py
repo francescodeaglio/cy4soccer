@@ -4,6 +4,9 @@ from PIL import Image
 Image.MAX_IMAGE_PIXELS = 1000000000
 from utils import getTeams, getGamesList
 from mplsoccer import VerticalPitch
+import matplotlib
+matplotlib.use('Agg')
+
 
 def cypherify(string, team=None, match=None):
     letters = list(string)
