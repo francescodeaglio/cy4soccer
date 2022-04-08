@@ -177,12 +177,12 @@ You can specify below the match, the team and the bandwidth of the kernels (rule
 
         st.warning("The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds.")
         st.success("Blue = starting position Orange = finish position")
-
+        _lock = RendererAgg.lock
         globs = []
         pitch = VerticalPitch(line_color='#cfcfcf', line_zorder=2, pitch_color='#122c3d')
         for pattern in ["ABAC", "ABAB", "ABCD", "ABCA", "ABCB"]:
             a = get_map_data(pattern, "DENMARK", 3788757, app=app, pitch=pitch)
-            _lock = RendererAgg.lock
+
             with _lock:
                 create_map(a, pattern, "location", pitch=pitch, bw0 = bw1, bw1 = bw2)
             globs.append(a)
@@ -197,7 +197,6 @@ You can specify below the match, the team and the bandwidth of the kernels (rule
                 vertical_glob[pattern]["x"]["end"] += glob[pattern]["x"]["end"]
                 vertical_glob[pattern]["y"]["start"] += glob[pattern]["y"]["start"]
                 vertical_glob[pattern]["y"]["end"] += glob[pattern]["y"]["end"]
-        _lock = RendererAgg.lock
         with _lock:
             create_map(vertical_glob, "AAAA", "location", pitch,
                    ["Overall location of p0", "Overall location of p1", "Overall location of p2", "Overall location"], bw0 = bw1, bw1 = bw2)
