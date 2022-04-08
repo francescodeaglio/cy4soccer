@@ -6,7 +6,7 @@ from utils import getTeams, getGamesList
 from mplsoccer import VerticalPitch
 import matplotlib
 matplotlib.use('Agg')
-
+from matplotlib.backends.backend_agg import RendererAgg
 
 def cypherify(string, team=None, match=None):
     letters = list(string)
@@ -118,6 +118,7 @@ def get_map_data(pattern, team, match, app, pitch):
 
 def create_map(glob, pattern, location, pitch, titles=None, bw0=0.3, bw1=0.2):
     number_of_rel = len(pattern) - 1
+
     fig, axs = pitch.grid(nrows=int(ceil((number_of_rel + 1) / 4)), ncols=4, space=0.1, figheight=40,
                           title_height=0, endnote_height=0,  # no title/ endnote
                           grid_width=0.9, grid_height=0.98, bottom=0.01, left=0.05)
@@ -181,7 +182,9 @@ You can specify below the match, the team and the bandwidth of the kernels (rule
         pitch = VerticalPitch(line_color='#cfcfcf', line_zorder=2, pitch_color='#122c3d')
         for pattern in ["ABAC", "ABAB", "ABCD", "ABCA", "ABCB"]:
             a = get_map_data(pattern, "DENMARK", 3788757, app=app, pitch=pitch)
-            create_map(a, pattern, "location", pitch=pitch, bw0 = bw1, bw1 = bw2)
+            _lock = RendererAgg.lock
+            with _lock:
+                create_map(a, pattern, "location", pitch=pitch, bw0 = bw1, bw1 = bw2)
             globs.append(a)
 
         vertical_glob = []
@@ -194,8 +197,9 @@ You can specify below the match, the team and the bandwidth of the kernels (rule
                 vertical_glob[pattern]["x"]["end"] += glob[pattern]["x"]["end"]
                 vertical_glob[pattern]["y"]["start"] += glob[pattern]["y"]["start"]
                 vertical_glob[pattern]["y"]["end"] += glob[pattern]["y"]["end"]
-
-        create_map(vertical_glob, "AAAA", "location", pitch,
+        _lock = RendererAgg.lock
+        with _lock:
+            create_map(vertical_glob, "AAAA", "location", pitch,
                    ["Overall location of p0", "Overall location of p1", "Overall location of p2", "Overall location"], bw0 = bw1, bw1 = bw2)
 
         st.balloons()
