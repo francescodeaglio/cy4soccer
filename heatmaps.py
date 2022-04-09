@@ -114,7 +114,7 @@ def get_map_data(pattern, team, match, app, pitch):
     return glob
 
 
-def create_map(glob, pattern, location, pitch, titles=None, bw0=0.3, bw1=0.2):
+def create_map(glob, pattern, location, pitch, titles=None, bw0=0.3, bw1=0.2, show_start = True, show_end = True):
     number_of_rel = len(pattern) - 1
 
     fig, axs = pitch.grid(nrows=int(ceil((number_of_rel + 1) / 4)), ncols=4, space=0.1, figheight=5,
@@ -128,9 +128,11 @@ def create_map(glob, pattern, location, pitch, titles=None, bw0=0.3, bw1=0.2):
     for idx, ax in enumerate(axs['pitch'].flat):
 
         name = f'{names[idx]}'
-        kdeplot = pitch.kdeplot(glob[idx]["x"]["start"], glob[idx]["y"]["start"], ax=ax, shade=True, levels=7,
+        if show_start:
+            kdeplot = pitch.kdeplot(glob[idx]["x"]["start"], glob[idx]["y"]["start"], ax=ax, shade=True, levels=7,
                                 bw_method=bw0)
-        kdeplot2 = pitch.kdeplot(glob[idx]["x"]["end"], glob[idx]["y"]["end"], ax=ax, shade=True, levels=7,
+        if show_end:
+            kdeplot2 = pitch.kdeplot(glob[idx]["x"]["end"], glob[idx]["y"]["end"], ax=ax, shade=True, levels=7,
                                 bw_method=bw1)
 
         ax.set_title(name, fontsize=13)
@@ -164,24 +166,26 @@ You can specify below the match, the team and the bandwidth of the kernels (rule
     with c1:
         team = st.selectbox("Specify Team: ", getTeams()).upper()
         bw1 = st.slider("Select start position bandwidth ", 0.001, 4.0, 0.3)
+        show_start = st.checkbox("Show start position density on the chart", True)
 
     with c2:
         games = getGamesList()
         game = st.selectbox("Specify the match: ", games.keys())
         match = games[game]
         bw2 = st.slider("Select end position bandwidth ", 0.001, 4.0, 0.2)
+        show_end = st.checkbox("Show end position density on the chart", True)
 
     if st.button("Create the plot"):
 
         st.warning("The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds.")
-        st.success("Blue = starting position Orange = finish position")
+        st.success("If both are plotted, Blue = starting position Orange = finish position")
 
         globs = []
         pitch = VerticalPitch(line_color='#cfcfcf', line_zorder=2, pitch_color='#122c3d', figsize = (3,2))
         for pattern in ["ABAC", "ABAB", "ABCD", "ABCA", "ABCB"]:
             try :
                 a = get_map_data(pattern, team, match, app=app, pitch=pitch)
-                create_map(a, pattern, "location", pitch=pitch, bw0=bw1, bw1=bw2)
+                create_map(a, pattern, "location", pitch=pitch, bw0=bw1, bw1=bw2, show_start= show_start, show_end=show_end)
                 globs.append(a)
             except LinAlgError:
                 st.error("Linear algebra error in seaborn library. I think it's due to the fact that there are too few points to calculate the density.")
