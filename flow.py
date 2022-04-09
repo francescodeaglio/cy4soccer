@@ -5,6 +5,7 @@ from utils import getTeams, getGamesList
 from mplsoccer import VerticalPitch, Pitch
 import matplotlib.pyplot as plt
 
+
 def cypherify(string, team=None, match=None):
     letters = list(string)
 
@@ -63,6 +64,7 @@ def cypherify(string, team=None, match=None):
 
     return query
 
+
 class App:
 
     def __init__(self, uri, user, password):
@@ -113,7 +115,7 @@ def get_map_data(pattern, team, match, app, pitch):
     return glob
 
 
-def create_map(glob, pattern, location, pitch, titles=None, bw0=0.3, bw1=0.2):
+def create_map(glob, pattern, location, pitch, titles=None, bins=(6, 4)):
     number_of_rel = len(pattern) - 1
 
     fig, axs = pitch.grid(nrows=int(ceil((number_of_rel + 1) / 4)), ncols=4, space=0.1, figheight=5,
@@ -126,49 +128,50 @@ def create_map(glob, pattern, location, pitch, titles=None, bw0=0.3, bw1=0.2):
         names = titles
     for idx, ax in enumerate(axs['pitch'].flat):
 
+        bs_heatmap = pitch.bin_statistic(glob[idx]["x"]["start"], glob[idx]["y"]["start"], statistic='count', bins=bins)
+        hm = pitch.heatmap(bs_heatmap, ax=ax, cmap='Blues')
         name = f'{names[idx]}'
-        pitch.arrows(glob[idx]["x"]["start"], glob[idx]["y"]["start"],
-                     glob[idx]["x"]["end"], glob[idx]["y"]["end"], width=2,
-                     headwidth=10, headlength=10, color='#ad993c', ax=ax)
+        fm = pitch.flow(glob[idx]["x"]["start"], glob[idx]["y"]["start"],
+                        glob[idx]["x"]["end"], glob[idx]["y"]["end"], color='black',
+                        arrow_length=10, bins=bins, ax=ax, arrow_type='same')
 
-        ax.set_title(name, fontsize=13)
+        ax.set_title(name, fontsize=18)
         if idx == number_of_rel:
             break
-
 
     st.pyplot(fig)
 
 
-def arrows():
+def flow():
     uri = st.secrets["uri"]
 
     user = "streamlit"
     password = st.secrets["password"]
     app = App(uri, user, password)
-    st.title("Arrows")
+    st.title("Flow")
 
     st.write("""
     
     On this page you can see exactly the same information as in the "Heatmaps" section, but represented differently. 
     
-    Each pass in fact does not contribute to create a gaussian density but is simply represented as an arrow that connects the starting and ending point.
-    """)
+    In this graph the field is divided into bins and the passages coming from that area are grouped to define the color of the cell (simply defined by the number of passages started from that cell) and the direction of the arrow (which points in the average direction of the passages started from that cell)""")
 
     c1, c2 = st.columns(2)
 
     with c1:
         team = st.selectbox("Specify Team: ", getTeams()).upper()
-
+        vbin = st.slider("Vertical bins", 1, 20, 6)
 
     with c2:
         games = getGamesList()
         game = st.selectbox("Specify the match: ", games.keys())
         match = games[game]
-
+        hbin = st.slider("Horizontal bins", 1, 20, 4)
 
     if st.button("Create the plot"):
 
-        st.warning("The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds.")
+        st.warning(
+            "The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds.")
 
 
         globs = []
@@ -176,8 +179,7 @@ def arrows():
         for pattern in ["ABAC", "ABAB", "ABCD", "ABCA", "ABCB"]:
             a = get_map_data(pattern, team, match, app=app, pitch=pitch)
 
-
-            create_map(a, pattern, "location", pitch=pitch)
+            create_map(a, pattern, "location", pitch=pitch, bins=(vbin, hbin))
             globs.append(a)
 
         vertical_glob = []
@@ -192,8 +194,6 @@ def arrows():
                 vertical_glob[pattern]["y"]["end"] += glob[pattern]["y"]["end"]
 
         create_map(vertical_glob, "AAAA", "location", pitch,
-                   ["Overall location of p0", "Overall location of p1", "Overall location of p2", "Overall location"], )
+                   ["Overall of p0", "Overall of p1", "Overall of p2", "Overall "], )
 
         st.balloons()
-
-

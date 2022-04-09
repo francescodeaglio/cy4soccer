@@ -1,4 +1,6 @@
 import streamlit as st
+
+from flow import flow
 from intro import intro
 from pattern_finder import pattern_finder
 from pcapage import pca_page
@@ -8,13 +10,16 @@ from writeYourOwnQuery import wyoq
 from arrows import arrows
 if __name__ == '__main__':
     st.sidebar.title("Cy4soccer")
-    page = st.sidebar.selectbox("Select the page", ["Intro", "Pattern Finder", "Sunburst diagram", "PCA", "Heatmap", "Arrows", "Write you own query", "Credits"])
+    page = st.sidebar.selectbox("Select the page", ["Intro", "Pattern Finder", "Sunburst diagram", "PCA", "Heatmap", "Arrows", "Flow", "Write you own query", "Credits"])
 
     if page == "Intro":
         intro()
 
     if page == "Arrows":
         arrows()
+
+    if page == "Flow":
+        flow()
     
     if page == "Heatmap":
         heatmap()
