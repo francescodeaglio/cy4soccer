@@ -128,9 +128,9 @@ def create_map(glob, pattern, location, pitch, titles=None, bw0=0.3, bw1=0.2):
     for idx, ax in enumerate(axs['pitch'].flat):
 
         name = f'{names[idx]}'
-        kdeplot = pitch.kdeplot(glob[idx]["x"]["start"], glob[idx]["y"]["start"], ax=ax, shade=True, levels=15,
+        kdeplot = pitch.kdeplot(glob[idx]["x"]["start"], glob[idx]["y"]["start"], ax=ax, shade=True, levels=7,
                                 bw_method=bw0)
-        kdeplot2 = pitch.kdeplot(glob[idx]["x"]["end"], glob[idx]["y"]["end"], ax=ax, shade=True, levels=15,
+        kdeplot2 = pitch.kdeplot(glob[idx]["x"]["end"], glob[idx]["y"]["end"], ax=ax, shade=True, levels=7,
                                 bw_method=bw1)
 
         ax.set_title(name, fontsize=13)
