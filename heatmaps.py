@@ -1,12 +1,9 @@
 from neo4j import GraphDatabase
 import streamlit as st
-from PIL import Image
-Image.MAX_IMAGE_PIXELS = 1000000000
+
 from utils import getTeams, getGamesList
 from mplsoccer import VerticalPitch
-import matplotlib
-matplotlib.use('Agg')
-from matplotlib.backends.backend_agg import RendererAgg
+import matplotlib.pyplot as plt
 
 def cypherify(string, team=None, match=None):
     letters = list(string)
@@ -119,7 +116,7 @@ def get_map_data(pattern, team, match, app, pitch):
 def create_map(glob, pattern, location, pitch, titles=None, bw0=0.3, bw1=0.2):
     number_of_rel = len(pattern) - 1
 
-    fig, axs = pitch.grid(nrows=int(ceil((number_of_rel + 1) / 4)), ncols=4, space=0.1, figheight=40,
+    fig, axs = pitch.grid(nrows=int(ceil((number_of_rel + 1) / 4)), ncols=4, space=0.1, figheight=5,
                           title_height=0, endnote_height=0,  # no title/ endnote
                           grid_width=0.9, grid_height=0.98, bottom=0.01, left=0.05)
 
@@ -135,7 +132,7 @@ def create_map(glob, pattern, location, pitch, titles=None, bw0=0.3, bw1=0.2):
         kdeplot2 = pitch.kdeplot(glob[idx]["x"]["end"], glob[idx]["y"]["end"], ax=ax, shade=True, levels=15,
                                 bw_method=bw1)
 
-        ax.set_title(name, fontsize=100)
+        ax.set_title(name, fontsize=13)
         if idx == number_of_rel:
             break
 
@@ -177,14 +174,14 @@ You can specify below the match, the team and the bandwidth of the kernels (rule
 
         st.warning("The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds.")
         st.success("Blue = starting position Orange = finish position")
-        _lock = RendererAgg.lock
+
         globs = []
-        pitch = VerticalPitch(line_color='#cfcfcf', line_zorder=2, pitch_color='#122c3d')
+        pitch = VerticalPitch(line_color='#cfcfcf', line_zorder=2, pitch_color='#122c3d', figsize = (3,2))
         for pattern in ["ABAC", "ABAB", "ABCD", "ABCA", "ABCB"]:
             a = get_map_data(pattern, "DENMARK", 3788757, app=app, pitch=pitch)
 
-            with _lock:
-                create_map(a, pattern, "location", pitch=pitch, bw0 = bw1, bw1 = bw2)
+
+            create_map(a, pattern, "location", pitch=pitch, bw0 = bw1, bw1 = bw2)
             globs.append(a)
 
         vertical_glob = []
@@ -197,8 +194,8 @@ You can specify below the match, the team and the bandwidth of the kernels (rule
                 vertical_glob[pattern]["x"]["end"] += glob[pattern]["x"]["end"]
                 vertical_glob[pattern]["y"]["start"] += glob[pattern]["y"]["start"]
                 vertical_glob[pattern]["y"]["end"] += glob[pattern]["y"]["end"]
-        with _lock:
-            create_map(vertical_glob, "AAAA", "location", pitch,
+
+        create_map(vertical_glob, "AAAA", "location", pitch,
                    ["Overall location of p0", "Overall location of p1", "Overall location of p2", "Overall location"], bw0 = bw1, bw1 = bw2)
 
         st.balloons()
