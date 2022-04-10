@@ -1,7 +1,7 @@
 from neo4j import GraphDatabase
 import streamlit as st
 from numpy.linalg import LinAlgError
-
+import cmasher as cmr
 from utils import getTeams, getGamesList
 from mplsoccer import VerticalPitch
 import matplotlib.pyplot as plt
@@ -130,10 +130,10 @@ def create_map(glob, pattern, location, pitch, titles=None, bw0=0.3, bw1=0.2, sh
         name = f'{names[idx]}'
         if show_start:
             kdeplot = pitch.kdeplot(glob[idx]["x"]["start"], glob[idx]["y"]["start"], ax=ax, shade=True, levels=7,
-                                bw_method=bw0)
+                                bw_method=bw0, cmap = cmr.arctic)
         if show_end:
             kdeplot2 = pitch.kdeplot(glob[idx]["x"]["end"], glob[idx]["y"]["end"], ax=ax, shade=True, levels=7,
-                                bw_method=bw1)
+                                bw_method=bw1, cmap = cmr.fall)
 
         ax.set_title(name, fontsize=13)
         if idx == number_of_rel:
@@ -178,7 +178,7 @@ You can specify below the match, the team and the bandwidth of the kernels (rule
     if st.button("Create the plot"):
 
         st.warning("The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds.")
-        st.success("If both are plotted, Blue = starting position Orange = finish position")
+        st.success("Blue = starting position Orange = finish position")
 
         globs = []
         pitch = VerticalPitch(line_color='#cfcfcf', line_zorder=2, pitch_color='#122c3d', figsize = (3,2))
