@@ -202,7 +202,7 @@ You can specify below the match, the team and the bandwidth of the kernels (rule
                 vertical_glob[pattern]["y"]["end"] += glob[pattern]["y"]["end"]
 
         create_map(vertical_glob, "AAAA", "location", pitch,
-                   ["Overall location of p0", "Overall location of p1", "Overall location of p2", "Overall location"], bw0 = bw1, bw1 = bw2)
+                   ["Overall location of p0", "Overall location of p1", "Overall location of p2", "Overall location"], bw0 = bw1, bw1 = bw2, show_start= show_start, show_end=show_end)
 
         st.balloons()
 
