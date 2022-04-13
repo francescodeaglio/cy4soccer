@@ -10,7 +10,7 @@ from writeYourOwnQuery import wyoq
 from arrows import arrows
 if __name__ == '__main__':
     st.sidebar.title("Cy4soccer")
-    page = st.sidebar.selectbox("Select the page", ["Intro", "Pattern Finder", "Sunburst diagram", "PCA", "Heatmap", "Arrows", "Flow", "Write you own query", "Credits"])
+    page = st.sidebar.selectbox("Select the page", ["Intro", "Pattern Finder", "Sunburst diagram", "PCA", "Heatmap", "Arrows", "Flow", "Write your own query", "Credits"])
 
     if page == "Intro":
         intro()
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     if page == "Heatmap":
         heatmap()
 
-    if page == "Write you own query":
+    if page == "Write your own query":
         wyoq()
 
     if page == "Pattern Finder":
