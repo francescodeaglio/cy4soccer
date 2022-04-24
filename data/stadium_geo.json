@@ -1,0 +1,80 @@
+{
+
+"Saint-Petersburg Stadium":{
+"top_left":[59.973259524699436, 30.221310082154517],
+"bottom_left":[59.973345409291014, 30.219777665272556],
+"top_right":[59.97223502703861, 30.22113845146373],
+"bottom_right":[59.97232091428718, 30.21955699724155]
+},
+
+"Baki Olimpiya Stadionu":{
+"top_left":[40.43037, 49.92],
+"bottom_left":[40.43021, 49.91916],
+"top_right":[40.42952, 49.92031],
+"bottom_right":[40.42934,49.91951]
+},
+
+"Allianz Arena (Muenchen)":{
+"top_left":[48.21934, 11.62494],
+"bottom_left":[48.21917,11.62399],
+"top_right":[48.21917,11.62399],
+"bottom_right":[48.21827, 11.62436]
+},
+
+"Hampden Park":{
+"top_left":[55.8261, -4.25288],
+"bottom_left":[55.82551, -4.25277],
+"top_right":[55.82621, -4.25123],
+"bottom_right":[55.82562, -4.25109]
+},
+
+"Wembley Stadium (London)":{
+"top_left":[51.55626, -0.28039],
+"bottom_left":[51.55565, -0.28038],
+"top_right":[51.55628, -0.27874],
+"bottom_right":[51.55565, -0.27873]
+},
+
+"Nya Parken":{
+"top_left":[55.70326, 12.57221],
+"bottom_left":[55.70272, 12.57129],
+"top_right":[55.70262, 12.57342],
+"bottom_right":[55.70208, 12.57249]
+},
+
+
+"Estadio Olimpico de Sevilla (Sevilla)":{
+"top_left":[37.41673, -6.00505],
+"bottom_left":[37.41674, -6.00426],
+"top_right":[37.41769, -6.00503],
+"bottom_right":[37.41768,-6.00424]
+},
+
+"Arena Nationala (Bucuresti)":{
+"top_left":[44.43777,26.15283],
+"bottom_left":[44.43766,26.15192],
+"top_right":[44.43677,26.15309],
+"bottom_right":[44.43666,26.15219]
+},
+
+"Puskas Arina":{
+"top_left":[47.50344,19.09855],
+"bottom_left":[47.50358,19.09767],
+"top_right":[47.50248,19.09820],
+"bottom_right":[47.50262,19.09732]
+},
+
+"Johan Cruijff Arena (Amsterdam)":{
+"top_left":[52.31493,4.94187],
+"bottom_left":[52.31460,4.94095],
+"top_right":[52.31405,4.94267],
+"bottom_right":[52.31372,4.94172]
+},
+
+"Stadio Olimpico (Roma)":{
+"top_left":[41.93446, 12.455],
+"bottom_left":[41.93431, 12.45423],
+"top_right":[41.93356, 12.45533],
+"bottom_right":[41.93339, 12.45456]
+}
+}

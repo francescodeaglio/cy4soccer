@@ -1,6 +1,7 @@
 import streamlit as st
 
 from flow import flow
+from geovisualization import geovisualization
 from intro import intro
 from pattern_finder import pattern_finder
 from pcapage import pca_page
@@ -10,7 +11,10 @@ from writeYourOwnQuery import wyoq
 from arrows import arrows
 if __name__ == '__main__':
     st.sidebar.title("Cy4soccer")
-    page = st.sidebar.selectbox("Select the page", ["Intro", "Pattern Finder", "Sunburst diagram", "PCA", "Heatmap", "Arrows", "Flow", "Write your own query", "Credits"])
+    page = st.sidebar.selectbox("Select the page",
+                                ["Intro", "Pattern Finder", "Sunburst diagram",
+                                 "Geovisualization", "PCA", "Heatmap", "Arrows",
+                                 "Flow", "Write your own query", "Credits"])
 
     if page == "Intro":
         intro()
@@ -32,6 +36,9 @@ if __name__ == '__main__':
 
     if page == "Sunburst diagram":
         sunburst()
+
+    if page == "Geovisualization":
+        geovisualization()
 
     if page == "Credits":
         st.title("Credits")

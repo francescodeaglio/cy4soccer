@@ -4,3 +4,5 @@ plotly==5.6.0
 sklearn
 mplsoccer
 cmasher
+pydeck==0.6.1
+scikit-image==0.16.2
