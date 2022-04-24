@@ -7,6 +7,9 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
 def pca_page():
+    """
+    Streamlit wrapper
+    """
     st.title("PCA")
 
     st.write("""Data has already been preprocessed to speedup loading. The table was obtained as follows:

@@ -2,7 +2,12 @@ from neo4j import GraphDatabase
 import logging
 from neo4j.exceptions import ServiceUnavailable
 import streamlit as st
+
+
 class App:
+    """
+    Neo4j connection. Used in pattern matching section and to populate the db.
+    """
 
     def __init__(self, uri, user, password):
         self.driver = GraphDatabase.driver(uri, auth=(user, password))

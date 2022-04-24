@@ -1,6 +1,9 @@
 import streamlit as st
 
 def intro():
+    """
+    Text introduction to neo4j/cypher and to the dashboard
+    """
     st.title("Cy4soccer")
     st.write("""
     Neo4j is a database in which data is represented as graphs. A graph is made up of two main elements: nodes and the relationships that join them. 

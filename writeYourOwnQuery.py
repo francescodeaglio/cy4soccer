@@ -2,6 +2,9 @@ import streamlit as st
 
 
 def wyoq():
+    """
+    Streamlit wrapper
+    """
     st.title("Write your own query")
     st.write("There are 3 ways to access the graph database to write and execute new queries.")
 

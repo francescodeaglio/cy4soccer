@@ -7,12 +7,17 @@ from neo4j import GraphDatabase
 import streamlit as st
 import json
 import os
-
-# function to map statsbomb rectangular pitch to real pitch
 from utils import getTeams, getGamesList
 
 
 def statsbomb2geo(x, y, stadium="Nya Parken"):
+    """
+    function to map statsbomb rectangular pitch to real pitch
+    :param x: x coordinate (in Statsbomb notation)
+    :param y: y coordinate (in Statsbomb notation)
+    :param stadium: name of the stadium
+    :return: geocoordinates in the given stadium
+    """
     path = os.path.join(os.curdir, "data", "stadium_geo.json")
     fp = open(path, "r")
     data = json.load(fp)[stadium]
@@ -33,8 +38,13 @@ def statsbomb2geo(x, y, stadium="Nya Parken"):
     data_local = t(data)
     return data_local[0][0], data_local[0][1]
 
-#function to get the center of a given pitch
+
 def get_center(stadium):
+    """
+    function to get the center of a given pitch
+    :param stadium: stadium name
+    :return: coordinates of the center
+    """
     path = os.path.join(os.curdir, "data", "stadium_geo.json")
     fp = open(path, "r")
     data = json.load(fp)[stadium]
@@ -46,8 +56,10 @@ def get_center(stadium):
     return centroid
 
 
-#neo4j function
 class App:
+    """
+    Neo4j function
+    """
 
     def __init__(self, uri, user, password):
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
@@ -55,7 +67,6 @@ class App:
     def close(self):
         # Don't forget to close the driver connection when you are finished with it
         self.driver.close()
-
 
     def query(self, query_string):
         with self.driver.session() as session:
@@ -67,8 +78,11 @@ class App:
         result = tx.run(query_string)
         return [row for row in result]
 
-#streamlit function
+
 def geovisualization():
+    """
+    Streamlit wrapper
+    """
     st.title("Geovisualization")
 
     st.write("""In this screen you can see an interactive version of the passage network.

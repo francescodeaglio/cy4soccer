@@ -1,94 +1,22 @@
-from neo4j import GraphDatabase
+from App_grids import App_grids
 import streamlit as st
 from numpy.linalg import LinAlgError
 import cmasher as cmr
-from utils import getTeams, getGamesList
+from utils import getTeams, getGamesList, cypherify_grids
 from mplsoccer import VerticalPitch
-import matplotlib.pyplot as plt
-
-def cypherify(string, team=None, match=None):
-    letters = list(string)
-
-    if team:
-        query = "MATCH p=(A:" + team + ")"
-        for i in range(len(string) - 1):
-            query += "-[p" + str(i) + ":PASS]->(" + letters[i + 1] + ":" + team + ")"
-    else:
-        query = "MATCH (A)"
-        for i in range(len(string) - 1):
-            query += "-[p" + str(i) + ":PASS]->(" + letters[i + 1] + ")"
-
-    query += "\nWHERE "
-
-    # correct order
-    first = True
-    for i in range(len(string) - 2):
-        if first:
-            query += "p" + str(i) + ".order + 1 = p" + str(i + 1) + ".order"
-            first = False
-        else:
-            query += " and p" + str(i) + ".order + 1 = p" + str(i + 1) + ".order"
-
-    # same possession
-    first = True
-    for i in range(len(string) - 2):
-        if first:
-            query += " and p" + str(i) + ".possession = p" + str(i + 1) + ".possession"
-            first = False
-        else:
-            query += " and p" + str(i) + ".possession = p" + str(i + 1) + ".possession"
-
-    # same match
-    first = True
-    for i in range(len(string) - 2):
-        if first:
-            query += " and p" + str(i) + ".match_id = p" + str(i + 1) + ".match_id"
-            first = False
-        else:
-            query += " and p" + str(i) + ".match_id = p" + str(i + 1) + ".match_id"
-
-    if match and string != "AB":
-        query += " and p0.match_id = " + str(match)
-    elif match:
-        query += " p0.match_id = " + str(match) + " and "
-
-    # different players
-    unorderedPairGenerator = ((x, y) for x in set(letters) for y in set(letters) if y > x)
-    if string != "AB":
-        query += " and " + " and ".join([x + ".name <>" + " " + y + ".name" for x, y in list(unorderedPairGenerator)])
-    else:
-        query += " and ".join([x + ".name <>" + " " + y + ".name" for x, y in list(unorderedPairGenerator)])
-
-    query += "\nRETURN " + ", ".join(["p" + str(i) + "." + "location " for i in range(len(string) - 1)])
-    query += ", " + ", ".join(["p" + str(i) + "." + "end_location" for i in range(len(string) - 1)])
-
-    return query
-
-class App:
-
-    def __init__(self, uri, user, password):
-        self.driver = GraphDatabase.driver(uri, auth=(user, password))
-
-    def close(self):
-        # Don't forget to close the driver connection when you are finished with it
-        self.driver.close()
-
-    def find_pattern(self, query_string):
-        with self.driver.session() as session:
-            result = session.read_transaction(self._find_and_return_pattern, query_string)
-            return result
-
-    @staticmethod
-    def _find_and_return_pattern(tx, query_string):
-        result = tx.run(query_string)
-        return [row for row in result]
-
-
 from numpy import ceil
 
 
-def get_map_data(pattern, team, match, app, pitch):
-    query = cypherify(pattern, team, match)
+def get_map_data(pattern, team, match, app):
+    """
+    Function to perform queries on Neo4j db
+    :param pattern: pattern to be matched (ex ABACA)
+    :param team: team
+    :param match: match_id
+    :param app: App instance (connection to Neo4j db)
+    :return:
+    """
+    query = cypherify_grids(pattern, team, match)
     v = app.find_pattern(query)
 
     number_of_rel = len(pattern) - 1
@@ -114,7 +42,19 @@ def get_map_data(pattern, team, match, app, pitch):
     return glob
 
 
-def create_map(glob, pattern, location, pitch, titles=None, bw0=0.3, bw1=0.2, show_start = True, show_end = True):
+def create_map(glob, pattern, pitch, titles=None, bw0=0.3, bw1=0.2, show_start = True, show_end = True):
+    """
+    FUnction to create a grid of heatmaps
+    :param glob: data
+    :param pattern: pattern matched (ex ABACA)
+    :param pitch: Pitch object
+    :param titles: array of titles (one for each pitch plotted)
+    :param bw0: kernel bandwidth for starting location (rbf)
+    :param bw1: kernel bandwidth for ending location
+    :param show_start: boolean to show/hide start location density
+    :param show_end: boolean to show/hide end location density
+    :return:
+    """
     number_of_rel = len(pattern) - 1
 
     fig, axs = pitch.grid(nrows=int(ceil((number_of_rel + 1) / 4)), ncols=4, space=0.1, figheight=5,
@@ -122,7 +62,7 @@ def create_map(glob, pattern, location, pitch, titles=None, bw0=0.3, bw1=0.2, sh
                           grid_width=0.9, grid_height=0.98, bottom=0.01, left=0.05)
 
     if not titles:
-        names = [pattern + " : " + location + " of p" + str(i) for i in range(number_of_rel)] + [pattern + " Overall"]
+        names = [pattern + " : " + "location" + " of p" + str(i) for i in range(number_of_rel)] + [pattern + " Overall"]
     else:
         names = titles
     for idx, ax in enumerate(axs['pitch'].flat):
@@ -144,11 +84,14 @@ def create_map(glob, pattern, location, pitch, titles=None, bw0=0.3, bw1=0.2, sh
 
 
 def heatmap():
+    """
+    Streamlit wrapper
+    """
     uri = st.secrets["uri"]
 
     user = "streamlit"
     password = st.secrets["password"]
-    app = App(uri, user, password)
+    app = App_grids(uri, user, password)
     st.title("Heatmaps")
 
     st.write("""
@@ -184,8 +127,8 @@ You can specify below the match, the team and the bandwidth of the kernels (rule
         pitch = VerticalPitch(line_color='#cfcfcf', line_zorder=2, pitch_color='#122c3d', figsize = (3,2))
         for pattern in ["ABAC", "ABAB", "ABCD", "ABCA", "ABCB"]:
             try :
-                a = get_map_data(pattern, team, match, app=app, pitch=pitch)
-                create_map(a, pattern, "location", pitch=pitch, bw0=bw1, bw1=bw2, show_start= show_start, show_end=show_end)
+                a = get_map_data(pattern, team, match, app=app)
+                create_map(a, pattern, pitch=pitch, bw0=bw1, bw1=bw2, show_start= show_start, show_end=show_end)
                 globs.append(a)
             except LinAlgError:
                 st.error("Linear algebra error in seaborn library. I think it's due to the fact that there are too few points to calculate the density.")
@@ -201,7 +144,7 @@ You can specify below the match, the team and the bandwidth of the kernels (rule
                 vertical_glob[pattern]["y"]["start"] += glob[pattern]["y"]["start"]
                 vertical_glob[pattern]["y"]["end"] += glob[pattern]["y"]["end"]
 
-        create_map(vertical_glob, "AAAA", "location", pitch,
+        create_map(vertical_glob, "AAAA", pitch,
                    ["Overall location of p0", "Overall location of p1", "Overall location of p2", "Overall location"], bw0 = bw1, bw1 = bw2, show_start= show_start, show_end=show_end)
 
         st.balloons()

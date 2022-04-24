@@ -1,11 +1,92 @@
 import streamlit as st
 
+
+def cypherify_grids(string, team=None, match=None):
+    """
+    Function to automatically write cypher queries for the 3 grid sections
+    :param string: pattern to be matched (ex ABAC)
+    :param team: team
+    :param match: match_id
+    :return: cypher query string
+    """
+    letters = list(string)
+
+    if team:
+        query = "MATCH p=(A:" + team + ")"
+        for i in range(len(string) - 1):
+            query += "-[p" + str(i) + ":PASS]->(" + letters[i + 1] + ":" + team + ")"
+    else:
+        query = "MATCH (A)"
+        for i in range(len(string) - 1):
+            query += "-[p" + str(i) + ":PASS]->(" + letters[i + 1] + ")"
+
+    query += "\nWHERE "
+
+    # correct order
+    first = True
+    for i in range(len(string) - 2):
+        if first:
+            query += "p" + str(i) + ".order + 1 = p" + str(i + 1) + ".order"
+            first = False
+        else:
+            query += " and p" + str(i) + ".order + 1 = p" + str(i + 1) + ".order"
+
+    # same possession
+    first = True
+    for i in range(len(string) - 2):
+        if first:
+            query += " and p" + str(i) + ".possession = p" + str(i + 1) + ".possession"
+            first = False
+        else:
+            query += " and p" + str(i) + ".possession = p" + str(i + 1) + ".possession"
+
+    # same match
+    first = True
+    for i in range(len(string) - 2):
+        if first:
+            query += " and p" + str(i) + ".match_id = p" + str(i + 1) + ".match_id"
+            first = False
+        else:
+            query += " and p" + str(i) + ".match_id = p" + str(i + 1) + ".match_id"
+
+    if match and string != "AB":
+        query += " and p0.match_id = " + str(match)
+    elif match:
+        query += " p0.match_id = " + str(match) + " and "
+
+    # different players
+    unorderedPairGenerator = ((x, y) for x in set(letters) for y in set(letters) if y > x)
+    if string != "AB":
+        query += " and " + " and ".join([x + ".name <>" + " " + y + ".name" for x, y in list(unorderedPairGenerator)])
+    else:
+        query += " and ".join([x + ".name <>" + " " + y + ".name" for x, y in list(unorderedPairGenerator)])
+
+    query += "\nRETURN " + ", ".join(["p" + str(i) + "." + "location " for i in range(len(string) - 1)])
+    query += ", " + ", ".join(["p" + str(i) + "." + "end_location" for i in range(len(string) - 1)])
+
+    return query
+
+
 def isNet(array):
+    """
+    Wrapper to the recursive function pass_net_check
+    :param array: list of char (ex list("ABACA"))
+    :return:
+    """
     vect = [0]*len(array)
     return pass_net_check(1, len(array),vect, array)
 
 
 def pass_net_check(i, n, vect, check):
+    """
+    Function to check whether a given array describes a valid passage pattern.
+    Not optimal, it firstly creates all the possibile passage patterns and then checks if the one given in among them
+    :param i:
+    :param n:
+    :param vect:
+    :param check:
+    :return:
+    """
     if i == 1:
         vect[i - 1] = "A"
         return pass_net_check(2, n, vect, check)
@@ -28,12 +109,26 @@ def pass_net_check(i, n, vect, check):
         a = pass_net_check(i + 1, n, vect, check)
         if a:
             return a
+
+
 def first_new_letter(vect,end):
+    """
+    SImple function that returns the first unused letter
+    :param vect: letters already used
+    :param end: index upperbound in the array (it may contain dirty values from previous iterations)
+    :return: the first new letter
+    """
     letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "L", "M"]
     max_letter = max(vect[:end])
     return letters[letters.index(max_letter)+1]
 
 def distinct_letters(vect, end):
+    """
+    Returns a list of distinct letters used in an array
+    :param vect: letters with duplicates
+    :param end: index upperbound in the array (it may contain dirty values from previous iterations)
+    :return: list of distinct letters
+    """
     el = set(vect[:end])
     el.discard(vect[end])
     return list(el)
@@ -44,7 +139,13 @@ def read(path):
     '''
     with open(path, 'r') as f:
         return f.read()
+
+
 def getTeams():
+    """
+    Returns all the teams that have played Euro2020
+    :return: a list of teams
+    """
     return {'Austria',
      'Belgium',
      'Croatia',
@@ -70,7 +171,11 @@ def getTeams():
      'Ukraine',
      'Wales'}
 def getGamesList():
-        return {'Finland-Russia': 3788753,
+    """
+    Returns the list of euro2020 games
+    :return: list of euro2020 games
+    """
+    return {'Finland-Russia': 3788753,
  'Switzerland-Turkey': 3788765,
  'Belgium-Italy': 3795107,
  'England-Denmark': 3795221,
@@ -124,6 +229,14 @@ def getGamesList():
 
 
 def cypherify(string, team = None, extra_filter = None):
+    """
+        Utils function to automatically write cypher queries
+        :param string: pattern to be matched (ex ABACA)
+        :param team: team
+        :param match_id: match_id
+        :param extra_filter: extra text filter
+        :return: the cypher query
+    """
     letters = list(string)
     if not isNet(letters):
         st.error(string+" is an invalid passage network!")

@@ -1,5 +1,4 @@
 import streamlit as st
-
 from flow import flow
 from geovisualization import geovisualization
 from intro import intro
@@ -9,6 +8,8 @@ from sunburst import sunburst
 from heatmaps import heatmap
 from writeYourOwnQuery import wyoq
 from arrows import arrows
+
+
 if __name__ == '__main__':
     st.sidebar.title("Cy4soccer")
     page = st.sidebar.selectbox("Select the page",
@@ -40,6 +41,9 @@ if __name__ == '__main__':
     if page == "Geovisualization":
         geovisualization()
 
+    if page == "PCA":
+        pca_page()
+
     if page == "Credits":
         st.title("Credits")
         st.write("""
@@ -54,5 +58,4 @@ Thanks to Filippo Costa for hosting and precious help in the development.
 To see the code you can refer to my github page www.github.com/francescodeaglio/cy4soccer where you can also find a notebook with the preprocessing, done in Jsoniq/Rumble.
         """)
 
-    if page == "PCA":
-        pca_page()
+

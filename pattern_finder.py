@@ -2,7 +2,16 @@ import streamlit as st
 from neo4j_app import App
 from utils import isNet, getGamesList, getTeams
 
-def cypherify(string, team = None, match_id = None, extra_filter = None):
+
+def cypherify(string, team=None, match_id=None, extra_filter=None):
+    """
+    Utils function to automatically write cypher queries
+    :param string: pattern to be matched (ex ABACA)
+    :param team: team
+    :param match_id: match_id
+    :param extra_filter: extra text filter
+    :return: the cypher query
+    """
     letters = list(string)
     if not isNet(letters):
         st.error(string+" is an invalid passage network!")
@@ -64,6 +73,9 @@ def cypherify(string, team = None, match_id = None, extra_filter = None):
 
 
 def pattern_finder():
+    """
+    Streamlit wrapper
+    """
 
     st.title("Pattern finder")
 
@@ -81,6 +93,9 @@ def pattern_finder():
         query()
 
 def first_form():
+    """
+    First page of the streamlit form
+    """
 
     with st.form("Pattern"):
         c = st.columns(2)
@@ -107,7 +122,9 @@ def first_form():
             st.experimental_rerun()
 
 def second_form():
-
+    """
+    Second page of the streamlit form. Used for advanced filters
+    """
 
     with st.form("Advanced"):
 
@@ -126,6 +143,9 @@ def second_form():
         st.experimental_rerun()
 
 def query():
+    """
+    Last page of the form, where results are shown
+    """
     uri = st.secrets["uri"]
 
     user = "streamlit"

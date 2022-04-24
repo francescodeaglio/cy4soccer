@@ -1,4 +1,5 @@
 """
+!!!!OLD!!! See the rumble_preprocessing notebook instead.
 
 Preprocessing of StatsBomb data made in Rumble/Jsoniq
 
@@ -14,7 +15,6 @@ See RumbleDb documentation online
 import requests
 import json
 import time
-from IPython.core.magic import register_line_cell_magic
 
 
 def rumble(line, query, server, outfilename):
@@ -135,7 +135,6 @@ return { "from" : $x.from, "to":$x.to, "possession" : $x.possession, "length": $
     
     
     """
-
 
 
     rumble(rumble_preprocess_passes, rumble_preprocess_passes, server, "passes_"+team+".json")
