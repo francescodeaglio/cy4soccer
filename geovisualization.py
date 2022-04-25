@@ -79,6 +79,53 @@ class App:
         return [row for row in result]
 
 
+def create_pitchdf(stadium):
+    path = os.path.join(os.curdir, "data", "stadium_geo.json")
+    fp = open(path, "r")
+    data = json.load(fp)[stadium]
+    fp.close()
+    top_left = data["top_left"]
+    bottom_right = data["bottom_right"]
+    top_right = data["top_right"]
+    bottom_left = data["bottom_left"]
+
+    diz = {
+        "lng_s": [top_left[1], bottom_left[1], bottom_right[1], top_right[1]],
+        "lat_s": [top_left[0], bottom_left[0], bottom_right[0], top_right[0]],
+        "lng_to": [bottom_left[1], bottom_right[1], top_right[1], top_left[1]],
+        "lat_to": [bottom_left[0], bottom_right[0], top_right[0], top_left[0]]
+    }
+
+    lines = [
+        ((0, 18), (18, 18)),
+        ((18, 18), (18, 62)),
+        ((18, 62), (0, 62)),
+        ((0, 30), (6, 30)),
+        ((6, 30), (6, 50)),
+        ((6, 50), (0, 50)),
+        ((60, 0), (60, 80))
+    ]
+    # symmetric points
+    lines2 = []
+    for start, end in lines:
+        lines2.append(
+            ((120 - start[0], start[1]), (120 - end[0], end[1]))
+        )
+
+    lines = lines + lines2
+
+    for start, end in lines:
+        start = statsbomb2geo(start[0], start[1], stadium)
+        end = statsbomb2geo(end[0], end[1], stadium)
+        diz["lng_s"].append(start[1])
+        diz["lat_s"].append(start[0])
+        diz["lng_to"].append(end[1])
+        diz["lat_to"].append(end[0])
+
+    pitch = pd.DataFrame(diz)
+    return pitch
+
+
 def geovisualization():
     """
     Streamlit wrapper
@@ -154,7 +201,7 @@ The colourscale starts from blue (few passes between that pair of players) and g
             i = starters.index(player)
             player = player["A.name"]
             query = """MATCH r = (A:""" + TEAM + """)-[p:PASS]-(B:""" + TEAM + """) WHERE p.match_id = """ + str(
-                MATCH_ID) + """ AND A.name = '""" + player + "' RETURN AVG(p.location[0]) as avg_x, AVG(p.location[1]) as avg_y"""
+                MATCH_ID) + ' AND A.name = "' + player + '" RETURN AVG(p.location[0]) as avg_x, AVG(p.location[1]) as avg_y'
             r = app.query(query)
             x = r[0]["avg_x"]
             y = r[0]["avg_y"]
@@ -206,6 +253,10 @@ The colourscale starts from blue (few passes between that pair of players) and g
         GREEN_RGB = [0, 255, 190, 40]
         RED_RGB = [240, 100, 0, 100]
 
+        #df for pitch
+
+        pitch = create_pitchdf(stadium)
+
         # javascript snippet to color the arrows based on color column described above
         GET_COLOR_JS = [
             "color * 255",
@@ -254,11 +305,41 @@ The colourscale starts from blue (few passes between that pair of players) and g
             get_alignment_baseline=String("top"),
         )
 
+        pitchl = pdk.Layer(
+            "LineLayer",
+            data=pitch,
+            get_width=3,
+            get_source_position=["lng_s", "lat_s"],
+            get_target_position=["lng_to", "lat_to"],
+            get_tilt=1,
+            get_color=[0, 0, 0, 50],
+            pickable=False,
+            auto_highlight=True
+        )
+
+        dft = pd.DataFrame({"lng": [get_center(stadium)[1]],
+                            "lat": [get_center(stadium)[0]]})
+        center_r = pdk.Layer(
+            "ScatterplotLayer",
+            dft,
+
+            get_position=["lng", "lat"],
+            get_radius=5,
+            pickable=False,
+            opacity=0.8,
+            stroked=True,
+            filled=True,
+            radius_scale=2,
+            get_fill_color=[255, 255, 255, 0],
+            get_line_color=[0, 0, 0, 70],
+            get_line_width=0.25
+        )
+
         center = get_center(stadium)
         view_state = pdk.ViewState(latitude=center[0], longitude=center[1], bearing=0, pitch=0, zoom=17.8, )
 
         TOOLTIP_TEXT = {"html": "{count} passages between {p1} and {p2}"}
-        r = pdk.Deck(layers=[line_layer, scatterplot, text], initial_view_state=view_state, tooltip=TOOLTIP_TEXT,
+        r = pdk.Deck(layers=[ line_layer,  scatterplot,text,  center_r, pitchl,], initial_view_state=view_state, tooltip=TOOLTIP_TEXT,
                      map_provider="carto", map_style="light"
                      )
         if stadium == "Saint-Petersburg Stadium":
