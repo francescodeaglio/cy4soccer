@@ -6,3 +6,5 @@ mplsoccer
 cmasher
 pydeck==0.6.1
 scikit-image==0.16.2
+dnspython==2.2.1
+pymongo==4.0.2
