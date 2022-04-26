@@ -339,7 +339,7 @@ The colourscale starts from blue (few passes between that pair of players) and g
         view_state = pdk.ViewState(latitude=center[0], longitude=center[1], bearing=0, pitch=0, zoom=17.8, )
 
         TOOLTIP_TEXT = {"html": "{count} passages between {p1} and {p2}"}
-        r = pdk.Deck(layers=[ line_layer,  scatterplot,text,  center_r, pitchl,], initial_view_state=view_state, tooltip=TOOLTIP_TEXT,
+        r = pdk.Deck(layers=[ line_layer,  scatterplot,text,  center_r, pitchl], initial_view_state=view_state, tooltip=TOOLTIP_TEXT,
                      map_provider="carto", map_style="light"
                      )
         if stadium == "Saint-Petersburg Stadium":
