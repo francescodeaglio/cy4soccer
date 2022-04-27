@@ -103,50 +103,50 @@ In this page it is possible to visualize this information for all the passage pa
 You can specify below the match, the team and the bandwidth of the kernels (rule of thumb: the lower the value, the less influence the points have on each other, the more the chart is composed of disconnected clusters)
     
     """)
+    with st.form("Inputs"):
+        c1, c2 = st.columns(2)
 
-    c1, c2 = st.columns(2)
+        with c1:
+            team = st.selectbox("Specify Team: ", getTeams()).upper()
+            bw1 = st.slider("Select start position bandwidth ", 0.001, 4.0, 0.3)
+            show_start = st.checkbox("Show start position density on the chart", True)
 
-    with c1:
-        team = st.selectbox("Specify Team: ", getTeams()).upper()
-        bw1 = st.slider("Select start position bandwidth ", 0.001, 4.0, 0.3)
-        show_start = st.checkbox("Show start position density on the chart", True)
+        with c2:
+            games = getGamesList()
+            game = st.selectbox("Specify the match: ", games.keys())
+            match = games[game]
+            bw2 = st.slider("Select end position bandwidth ", 0.001, 4.0, 0.2)
+            show_end = st.checkbox("Show end position density on the chart", True)
 
-    with c2:
-        games = getGamesList()
-        game = st.selectbox("Specify the match: ", games.keys())
-        match = games[game]
-        bw2 = st.slider("Select end position bandwidth ", 0.001, 4.0, 0.2)
-        show_end = st.checkbox("Show end position density on the chart", True)
+        if st.form_submit_button("Create the plot"):
 
-    if st.button("Create the plot"):
+            st.warning("The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds.")
+            st.success("Blue = starting position Orange = finish position")
 
-        st.warning("The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds.")
-        st.success("Blue = starting position Orange = finish position")
+            globs = []
+            pitch = VerticalPitch(line_color='#cfcfcf', line_zorder=2, pitch_color='#122c3d', figsize = (3,2))
+            for pattern in ["ABAC", "ABAB", "ABCD", "ABCA", "ABCB"]:
+                try :
+                    a = get_map_data(pattern, team, match, app=app)
+                    create_map(a, pattern, pitch=pitch, bw0=bw1, bw1=bw2, show_start= show_start, show_end=show_end)
+                    globs.append(a)
+                except LinAlgError:
+                    st.error("Linear algebra error in seaborn library. I think it's due to the fact that there are too few points to calculate the density.")
 
-        globs = []
-        pitch = VerticalPitch(line_color='#cfcfcf', line_zorder=2, pitch_color='#122c3d', figsize = (3,2))
-        for pattern in ["ABAC", "ABAB", "ABCD", "ABCA", "ABCB"]:
-            try :
-                a = get_map_data(pattern, team, match, app=app)
-                create_map(a, pattern, pitch=pitch, bw0=bw1, bw1=bw2, show_start= show_start, show_end=show_end)
-                globs.append(a)
-            except LinAlgError:
-                st.error("Linear algebra error in seaborn library. I think it's due to the fact that there are too few points to calculate the density.")
+            vertical_glob = []
+            for i in range(4):
+                vertical_glob.append({"x": {"start": [], "end": []}, "y": {"start": [], "end": []}})
 
-        vertical_glob = []
-        for i in range(4):
-            vertical_glob.append({"x": {"start": [], "end": []}, "y": {"start": [], "end": []}})
+            for glob in globs:
+                for pattern in range(len(glob)):
+                    vertical_glob[pattern]["x"]["start"] += glob[pattern]["x"]["start"]
+                    vertical_glob[pattern]["x"]["end"] += glob[pattern]["x"]["end"]
+                    vertical_glob[pattern]["y"]["start"] += glob[pattern]["y"]["start"]
+                    vertical_glob[pattern]["y"]["end"] += glob[pattern]["y"]["end"]
 
-        for glob in globs:
-            for pattern in range(len(glob)):
-                vertical_glob[pattern]["x"]["start"] += glob[pattern]["x"]["start"]
-                vertical_glob[pattern]["x"]["end"] += glob[pattern]["x"]["end"]
-                vertical_glob[pattern]["y"]["start"] += glob[pattern]["y"]["start"]
-                vertical_glob[pattern]["y"]["end"] += glob[pattern]["y"]["end"]
+            create_map(vertical_glob, "AAAA", pitch,
+                       ["Overall location of p0", "Overall location of p1", "Overall location of p2", "Overall location"], bw0 = bw1, bw1 = bw2, show_start= show_start, show_end=show_end)
 
-        create_map(vertical_glob, "AAAA", pitch,
-                   ["Overall location of p0", "Overall location of p1", "Overall location of p2", "Overall location"], bw0 = bw1, bw1 = bw2, show_start= show_start, show_end=show_end)
-
-        st.balloons()
+            st.balloons()
 
 

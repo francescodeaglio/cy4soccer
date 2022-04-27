@@ -91,44 +91,45 @@ def flow():
     
     In this graph the field is divided into bins and the passages coming from that area are grouped to define the color of the cell (simply defined by the number of passages started from that cell) and the direction of the arrow (which points in the average direction of the passages started from that cell)""")
 
-    c1, c2 = st.columns(2)
+    with st.form("inputs"):
+        c1, c2 = st.columns(2)
 
-    with c1:
-        team = st.selectbox("Specify Team: ", getTeams()).upper()
-        vbin = st.slider("Vertical bins", 1, 20, 6)
+        with c1:
+            team = st.selectbox("Specify Team: ", getTeams()).upper()
+            vbin = st.slider("Vertical bins", 1, 20, 6)
 
-    with c2:
-        games = getGamesList()
-        game = st.selectbox("Specify the match: ", games.keys())
-        match = games[game]
-        hbin = st.slider("Horizontal bins", 1, 20, 4)
+        with c2:
+            games = getGamesList()
+            game = st.selectbox("Specify the match: ", games.keys())
+            match = games[game]
+            hbin = st.slider("Horizontal bins", 1, 20, 4)
 
-    if st.button("Create the plot"):
+        if st.form_submit_button("Create the plot"):
 
-        st.warning(
-            "The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds.")
+            st.warning(
+                "The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds.")
 
 
-        globs = []
-        pitch = Pitch(pitch_type='statsbomb', pitch_color='#22312b', line_color='#c7d5cc')
-        for pattern in ["ABAC", "ABAB", "ABCD", "ABCA", "ABCB"]:
-            a = get_map_data(pattern, team, match, app=app)
+            globs = []
+            pitch = Pitch(pitch_type='statsbomb', pitch_color='#22312b', line_color='#c7d5cc')
+            for pattern in ["ABAC", "ABAB", "ABCD", "ABCA", "ABCB"]:
+                a = get_map_data(pattern, team, match, app=app)
 
-            create_map(a, pattern, pitch=pitch, bins=(vbin, hbin))
-            globs.append(a)
+                create_map(a, pattern, pitch=pitch, bins=(vbin, hbin))
+                globs.append(a)
 
-        vertical_glob = []
-        for i in range(4):
-            vertical_glob.append({"x": {"start": [], "end": []}, "y": {"start": [], "end": []}})
+            vertical_glob = []
+            for i in range(4):
+                vertical_glob.append({"x": {"start": [], "end": []}, "y": {"start": [], "end": []}})
 
-        for glob in globs:
-            for pattern in range(len(glob)):
-                vertical_glob[pattern]["x"]["start"] += glob[pattern]["x"]["start"]
-                vertical_glob[pattern]["x"]["end"] += glob[pattern]["x"]["end"]
-                vertical_glob[pattern]["y"]["start"] += glob[pattern]["y"]["start"]
-                vertical_glob[pattern]["y"]["end"] += glob[pattern]["y"]["end"]
+            for glob in globs:
+                for pattern in range(len(glob)):
+                    vertical_glob[pattern]["x"]["start"] += glob[pattern]["x"]["start"]
+                    vertical_glob[pattern]["x"]["end"] += glob[pattern]["x"]["end"]
+                    vertical_glob[pattern]["y"]["start"] += glob[pattern]["y"]["start"]
+                    vertical_glob[pattern]["y"]["end"] += glob[pattern]["y"]["end"]
 
-        create_map(vertical_glob, "AAAA", pitch,
-                   ["Overall of p0", "Overall of p1", "Overall of p2", "Overall "], )
+            create_map(vertical_glob, "AAAA", pitch,
+                       ["Overall of p0", "Overall of p1", "Overall of p2", "Overall "], )
 
-        st.balloons()
+            st.balloons()

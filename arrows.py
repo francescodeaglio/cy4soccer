@@ -90,42 +90,42 @@ def arrows():
     
     Each pass in fact does not contribute to create a gaussian density but is simply represented as an arrow that connects the starting and ending point.
     """)
+    with st.form("Inputs"):
+        c1, c2 = st.columns(2)
 
-    c1, c2 = st.columns(2)
+        with c1:
+            team = st.selectbox("Specify Team: ", getTeams()).upper()
 
-    with c1:
-        team = st.selectbox("Specify Team: ", getTeams()).upper()
+        with c2:
+            games = getGamesList()
+            game = st.selectbox("Specify the match: ", games.keys())
+            match = games[game]
 
-    with c2:
-        games = getGamesList()
-        game = st.selectbox("Specify the match: ", games.keys())
-        match = games[game]
+        if st.form_submit_button("Create the plot"):
 
-    if st.button("Create the plot"):
+            st.warning(
+                "The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds.")
 
-        st.warning(
-            "The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds.")
+            globs = []
+            pitch = Pitch(pitch_type='statsbomb', pitch_color='#22312b', line_color='#c7d5cc')
+            for pattern in ["ABAC", "ABAB", "ABCD", "ABCA", "ABCB"]:
+                a = get_map_data(pattern, team, match, app=app)
 
-        globs = []
-        pitch = Pitch(pitch_type='statsbomb', pitch_color='#22312b', line_color='#c7d5cc')
-        for pattern in ["ABAC", "ABAB", "ABCD", "ABCA", "ABCB"]:
-            a = get_map_data(pattern, team, match, app=app)
+                create_map(a, pattern, pitch=pitch)
+                globs.append(a)
 
-            create_map(a, pattern, pitch=pitch)
-            globs.append(a)
+            vertical_glob = []
+            for i in range(4):
+                vertical_glob.append({"x": {"start": [], "end": []}, "y": {"start": [], "end": []}})
 
-        vertical_glob = []
-        for i in range(4):
-            vertical_glob.append({"x": {"start": [], "end": []}, "y": {"start": [], "end": []}})
+            for glob in globs:
+                for pattern in range(len(glob)):
+                    vertical_glob[pattern]["x"]["start"] += glob[pattern]["x"]["start"]
+                    vertical_glob[pattern]["x"]["end"] += glob[pattern]["x"]["end"]
+                    vertical_glob[pattern]["y"]["start"] += glob[pattern]["y"]["start"]
+                    vertical_glob[pattern]["y"]["end"] += glob[pattern]["y"]["end"]
 
-        for glob in globs:
-            for pattern in range(len(glob)):
-                vertical_glob[pattern]["x"]["start"] += glob[pattern]["x"]["start"]
-                vertical_glob[pattern]["x"]["end"] += glob[pattern]["x"]["end"]
-                vertical_glob[pattern]["y"]["start"] += glob[pattern]["y"]["start"]
-                vertical_glob[pattern]["y"]["end"] += glob[pattern]["y"]["end"]
+            create_map(vertical_glob, "AAAA", pitch,
+                       ["Overall location of p0", "Overall location of p1", "Overall location of p2", "Overall location"], )
 
-        create_map(vertical_glob, "AAAA", pitch,
-                   ["Overall location of p0", "Overall location of p1", "Overall location of p2", "Overall location"], )
-
-        st.balloons()
+            st.balloons()

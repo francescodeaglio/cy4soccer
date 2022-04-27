@@ -144,207 +144,207 @@ The colourscale starts from blue (few passes between that pair of players) and g
     user = "streamlit"
     password = st.secrets["password"]
     app = App(uri, user, password)
+    with st.form("Input"):
+        c1, c2 = st.columns(2)
 
-    c1, c2 = st.columns(2)
+        with c1:
+            TEAM = st.selectbox("Specify Team: ", getTeams()).upper()
 
-    with c1:
-        TEAM = st.selectbox("Specify Team: ", getTeams()).upper()
+        with c2:
+            games = getGamesList()
+            game = st.selectbox("Specify the match: ", games.keys())
+            MATCH_ID = games[game]
 
-    with c2:
-        games = getGamesList()
-        game = st.selectbox("Specify the match: ", games.keys())
-        MATCH_ID = games[game]
+        if st.form_submit_button("Create the plot"):
+            # Getting players
+            query = """MATCH (A:""" + TEAM + """)-[h:HAS_PLAYED]->(N {match_id:""" + str(MATCH_ID) + """}) WHERE h.starting = true
+            RETURN A.name"""
+            starters = app.query(query)
+            # Getting stadium
+            query = "MATCH (n:GAME) WHERE n.match_id = " + str(MATCH_ID) + " RETURN n.stadium"
+            stadium = app.query(query)[0]["n.stadium"]
 
-    if st.button("Create the plot"):
-        # Getting players
-        query = """MATCH (A:""" + TEAM + """)-[h:HAS_PLAYED]->(N {match_id:""" + str(MATCH_ID) + """}) WHERE h.starting = true
-        RETURN A.name"""
-        starters = app.query(query)
-        # Getting stadium
-        query = "MATCH (n:GAME) WHERE n.match_id = " + str(MATCH_ID) + " RETURN n.stadium"
-        stadium = app.query(query)[0]["n.stadium"]
+            # matrix of passages. Since it's symmetric, only the lower part is computed
+            st.write("Evaluating the number of passages between every couple of players")
+            placeholder = st.empty()
+            pb = placeholder.progress(0)
+            cnt = 0
+            matrix = [[0] * len(starters) for i in range(len(starters))]
+            for player1 in starters:
+                i = starters.index(player1)
+                player1 = player1["A.name"]
 
-        # matrix of passages. Since it's symmetric, only the lower part is computed
-        st.write("Evaluating the number of passages between every couple of players")
-        placeholder = st.empty()
-        pb = placeholder.progress(0)
-        cnt = 0
-        matrix = [[0] * len(starters) for i in range(len(starters))]
-        for player1 in starters:
-            i = starters.index(player1)
-            player1 = player1["A.name"]
+                for player2 in starters:
+                    j = starters.index(player2)
+                    player2 = player2["A.name"]
+                    if player1 != player2 and i > j:
+                        query = """MATCH r = (A:""" + TEAM + """)-[p:PASS]-(B:""" + TEAM + """) WHERE p.match_id = """ + str(
+                            MATCH_ID) + ' and A.name = "' + player1 + '" and B.name = "' + player2 + '" RETURN count(r) as cnt'
+                        r = app.query(query)
+                        matrix[i][j] = r[0]["cnt"]
+                    cnt +=1
+                    pb.progress(cnt/121)
+            with placeholder.expander("Show the matrix"):
+                X = np.array(matrix)
+                X = X + X.T - np.diag(np.diag(X))
+                st.dataframe(pd.DataFrame(X, columns=[starter[0] for starter in starters], index=[starter[0] for starter in starters]))
 
-            for player2 in starters:
-                j = starters.index(player2)
-                player2 = player2["A.name"]
-                if player1 != player2 and i > j:
-                    query = """MATCH r = (A:""" + TEAM + """)-[p:PASS]-(B:""" + TEAM + """) WHERE p.match_id = """ + str(
-                        MATCH_ID) + ' and A.name = "' + player1 + '" and B.name = "' + player2 + '" RETURN count(r) as cnt'
-                    r = app.query(query)
-                    matrix[i][j] = r[0]["cnt"]
-                cnt +=1
-                pb.progress(cnt/121)
-        with placeholder.expander("Show the matrix"):
-            X = np.array(matrix)
-            X = X + X.T - np.diag(np.diag(X))
-            st.dataframe(pd.DataFrame(X, columns=[starter[0] for starter in starters], index=[starter[0] for starter in starters]))
-
-        # getting average positions of players in the real pitch
+            # getting average positions of players in the real pitch
 
 
-        st.write("Getting average positions of players in the real pitch")
-        placeholder2 = st.empty()
-        pb = placeholder2.progress(0)
-        positions = []
+            st.write("Getting average positions of players in the real pitch")
+            placeholder2 = st.empty()
+            pb = placeholder2.progress(0)
+            positions = []
 
-        for player in starters:
-            i = starters.index(player)
-            player = player["A.name"]
-            query = """MATCH r = (A:""" + TEAM + """)-[p:PASS]-(B:""" + TEAM + """) WHERE p.match_id = """ + str(
-                MATCH_ID) + ' AND A.name = "' + player + '" RETURN AVG(p.location[0]) as avg_x, AVG(p.location[1]) as avg_y'
-            r = app.query(query)
-            x = r[0]["avg_x"]
-            y = r[0]["avg_y"]
+            for player in starters:
+                i = starters.index(player)
+                player = player["A.name"]
+                query = """MATCH r = (A:""" + TEAM + """)-[p:PASS]-(B:""" + TEAM + """) WHERE p.match_id = """ + str(
+                    MATCH_ID) + ' AND A.name = "' + player + '" RETURN AVG(p.location[0]) as avg_x, AVG(p.location[1]) as avg_y'
+                r = app.query(query)
+                x = r[0]["avg_x"]
+                y = r[0]["avg_y"]
 
-            positions.append(statsbomb2geo(x, y, stadium=stadium))
-            pb.progress((i+1)/11)
+                positions.append(statsbomb2geo(x, y, stadium=stadium))
+                pb.progress((i+1)/11)
 
-        with placeholder2.expander("Show the computed data"):
-            st.dataframe(pd.DataFrame(positions, index=[starter[0] for starter in starters], columns = ["avg(lat)", "avg(lng)"] ))
+            with placeholder2.expander("Show the computed data"):
+                st.dataframe(pd.DataFrame(positions, index=[starter[0] for starter in starters], columns = ["avg(lat)", "avg(lng)"] ))
 
-        # creating the dataframe containing all the info for pydeck
-        diz = {
-            "lng_h": [],
-            "lat_h": [],
-            "lng_w": [],
-            "lat_w": [],
-            "count": [],
-            "p1": [],
-            "p2": []
-        }
+            # creating the dataframe containing all the info for pydeck
+            diz = {
+                "lng_h": [],
+                "lat_h": [],
+                "lng_w": [],
+                "lat_w": [],
+                "count": [],
+                "p1": [],
+                "p2": []
+            }
 
-        for player1 in starters:
-            i = starters.index(player1)
-            player1 = player1["A.name"]
+            for player1 in starters:
+                i = starters.index(player1)
+                player1 = player1["A.name"]
 
-            for player2 in starters:
-                j = starters.index(player2)
-                player2 = player2["A.name"]
+                for player2 in starters:
+                    j = starters.index(player2)
+                    player2 = player2["A.name"]
 
-                if i > j:
-                    diz["lng_h"].append(positions[i][1])
-                    diz["lat_h"].append(positions[i][0])
+                    if i > j:
+                        diz["lng_h"].append(positions[i][1])
+                        diz["lat_h"].append(positions[i][0])
 
-                    diz["lng_w"].append(positions[j][1])
-                    diz["lat_w"].append(positions[j][0])
+                        diz["lng_w"].append(positions[j][1])
+                        diz["lat_w"].append(positions[j][0])
 
-                    diz["p1"].append(player1)
-                    diz["p2"].append(player2)
-                    diz["count"].append(matrix[i][j])
+                        diz["p1"].append(player1)
+                        diz["p2"].append(player2)
+                        diz["count"].append(matrix[i][j])
 
-        df = pd.DataFrame(diz)
-        df["color"] = df["count"] / max(df["count"])
+            df = pd.DataFrame(diz)
+            df["color"] = df["count"] / max(df["count"])
 
-        #df for players positions
-        dfp = pd.DataFrame({"lng": [position[1] for position in positions],
-                            "lat": [position[0] for position in positions],
-                            "name": [name[0].split()[-1] for name in starters]})
+            #df for players positions
+            dfp = pd.DataFrame({"lng": [position[1] for position in positions],
+                                "lat": [position[0] for position in positions],
+                                "name": [name[0].split()[-1] for name in starters]})
 
-        GREEN_RGB = [0, 255, 190, 40]
-        RED_RGB = [240, 100, 0, 100]
+            GREEN_RGB = [0, 255, 190, 40]
+            RED_RGB = [240, 100, 0, 100]
 
-        #df for pitch
+            #df for pitch
 
-        pitch = create_pitchdf(stadium)
+            pitch = create_pitchdf(stadium)
 
-        # javascript snippet to color the arrows based on color column described above
-        GET_COLOR_JS = [
-            "color * 255",
-            "100",
-            "255 * (1-color)",
-            "255 * 0.4",
-        ]
+            # javascript snippet to color the arrows based on color column described above
+            GET_COLOR_JS = [
+                "color * 255",
+                "100",
+                "255 * (1-color)",
+                "255 * 0.4",
+            ]
 
-        # deckgl line layer to encode passages
-        line_layer = pdk.Layer(
-            "LineLayer",
-            data=df,
-            get_width=3,
-            get_source_position=["lng_h", "lat_h"],
-            get_target_position=["lng_w", "lat_w"],
-            get_tilt=1,
-            get_color=GET_COLOR_JS,
-            pickable=True,
-            auto_highlight=True
-        )
-        # scatterplotlayer to show average position of players
-        scatterplot = pdk.Layer(
-            "ScatterplotLayer",
-            dfp,
-            pickable=False,
-            opacity=10,
-            stroked=False,
-            filled=True,
-            get_position=["lng", "lat"],
-            get_fill_color=RED_RGB,
-            get_radius=1
-        )
-        # name of players
-        text = pdk.Layer(
-            "TextLayer",
-            dfp,
-            pickable=False,
-            get_position=["lng", "lat"],
-            get_text="name",
-            get_size=18,
-            get_color=[0, 0, 0],
-            get_angle=0,
-            # Note that string constants in pydeck are explicitly passed as strings
-            # This distinguishes them from columns in a data set
-            get_text_anchor=String("middle"),
-            get_alignment_baseline=String("top"),
-        )
+            # deckgl line layer to encode passages
+            line_layer = pdk.Layer(
+                "LineLayer",
+                data=df,
+                get_width=3,
+                get_source_position=["lng_h", "lat_h"],
+                get_target_position=["lng_w", "lat_w"],
+                get_tilt=1,
+                get_color=GET_COLOR_JS,
+                pickable=True,
+                auto_highlight=True
+            )
+            # scatterplotlayer to show average position of players
+            scatterplot = pdk.Layer(
+                "ScatterplotLayer",
+                dfp,
+                pickable=False,
+                opacity=10,
+                stroked=False,
+                filled=True,
+                get_position=["lng", "lat"],
+                get_fill_color=RED_RGB,
+                get_radius=1
+            )
+            # name of players
+            text = pdk.Layer(
+                "TextLayer",
+                dfp,
+                pickable=False,
+                get_position=["lng", "lat"],
+                get_text="name",
+                get_size=18,
+                get_color=[0, 0, 0],
+                get_angle=0,
+                # Note that string constants in pydeck are explicitly passed as strings
+                # This distinguishes them from columns in a data set
+                get_text_anchor=String("middle"),
+                get_alignment_baseline=String("top"),
+            )
 
-        pitchl = pdk.Layer(
-            "LineLayer",
-            data=pitch,
-            get_width=3,
-            get_source_position=["lng_s", "lat_s"],
-            get_target_position=["lng_to", "lat_to"],
-            get_tilt=1,
-            get_color=[0, 0, 0, 50],
-            pickable=False,
-            auto_highlight=True
-        )
+            pitchl = pdk.Layer(
+                "LineLayer",
+                data=pitch,
+                get_width=3,
+                get_source_position=["lng_s", "lat_s"],
+                get_target_position=["lng_to", "lat_to"],
+                get_tilt=1,
+                get_color=[0, 0, 0, 50],
+                pickable=False,
+                auto_highlight=True
+            )
 
-        dft = pd.DataFrame({"lng": [get_center(stadium)[1]],
-                            "lat": [get_center(stadium)[0]]})
-        center_r = pdk.Layer(
-            "ScatterplotLayer",
-            dft,
+            dft = pd.DataFrame({"lng": [get_center(stadium)[1]],
+                                "lat": [get_center(stadium)[0]]})
+            center_r = pdk.Layer(
+                "ScatterplotLayer",
+                dft,
 
-            get_position=["lng", "lat"],
-            get_radius=5,
-            pickable=False,
-            opacity=0.8,
-            stroked=True,
-            filled=True,
-            radius_scale=2,
-            get_fill_color=[255, 255, 255, 0],
-            get_line_color=[0, 0, 0, 70],
-            get_line_width=0.25
-        )
+                get_position=["lng", "lat"],
+                get_radius=5,
+                pickable=False,
+                opacity=0.8,
+                stroked=True,
+                filled=True,
+                radius_scale=2,
+                get_fill_color=[255, 255, 255, 0],
+                get_line_color=[0, 0, 0, 70],
+                get_line_width=0.25
+            )
 
-        center = get_center(stadium)
-        view_state = pdk.ViewState(latitude=center[0], longitude=center[1], bearing=0, pitch=0, zoom=17.8, )
+            center = get_center(stadium)
+            view_state = pdk.ViewState(latitude=center[0], longitude=center[1], bearing=0, pitch=0, zoom=17.8, )
 
-        TOOLTIP_TEXT = {"html": "{count} passages between {p1} and {p2}"}
-        r = pdk.Deck(layers=[ line_layer,  scatterplot,text,  center_r, pitchl], initial_view_state=view_state, tooltip=TOOLTIP_TEXT,
-                     map_provider="carto", map_style="light"
-                     )
-        if stadium == "Saint-Petersburg Stadium":
-            st.warning("The St. Petersburg stadium is covered so it is impossible to take exact positions of the playing field.")
-        st.pydeck_chart(r)
+            TOOLTIP_TEXT = {"html": "{count} passages between {p1} and {p2}"}
+            r = pdk.Deck(layers=[ line_layer,  scatterplot,text,  center_r, pitchl], initial_view_state=view_state, tooltip=TOOLTIP_TEXT,
+                         map_provider="carto", map_style="light"
+                         )
+            if stadium == "Saint-Petersburg Stadium":
+                st.warning("The St. Petersburg stadium is covered so it is impossible to take exact positions of the playing field.")
+            st.pydeck_chart(r)
 
 
 
