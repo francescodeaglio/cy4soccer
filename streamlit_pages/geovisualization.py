@@ -7,7 +7,7 @@ from neo4j import GraphDatabase
 import streamlit as st
 import json
 import os
-from utils import getTeams, getGamesList
+from streamlit_pages.neo4j_utils.utils import getTeams, getGamesList
 
 
 def statsbomb2geo(x, y, stadium="Nya Parken"):
@@ -26,6 +26,7 @@ def statsbomb2geo(x, y, stadium="Nya Parken"):
     bottom_right = data["bottom_right"]
     top_right = data["top_right"]
     bottom_left = data["bottom_left"]
+
 
     t = ProjectiveTransform()
     src = np.asarray([[0, 80], [0, 0], [120, 0], [120, 80]])

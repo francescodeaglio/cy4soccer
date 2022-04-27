@@ -1,14 +1,13 @@
 import streamlit as st
-from flow import flow
-from geovisualization import geovisualization
-from intro import intro
-from pattern_finder import pattern_finder
-from pcapage import pca_page
-#from sunburst import sunburst old version no longer used
-from heatmaps import heatmap
-from sunburst_mongo import sunburst_mongo
-from writeYourOwnQuery import wyoq
-from arrows import arrows
+from streamlit_pages.flow import flow
+from streamlit_pages.geovisualization import geovisualization
+from streamlit_pages.intro import intro
+from streamlit_pages.pattern_finder import pattern_finder
+from streamlit_pages.pca import pca_page
+from streamlit_pages.heatmaps import heatmap
+from streamlit_pages.sunburst_mongo import sunburst_mongo
+from streamlit_pages.writeYourOwnQuery import wyoq
+from streamlit_pages.arrows import arrows
 
 
 if __name__ == '__main__':

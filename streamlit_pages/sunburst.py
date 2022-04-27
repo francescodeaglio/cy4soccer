@@ -22,10 +22,10 @@ Two graphs are shown, which I think are fairly important. The first one matches 
 The graphs are interactive. For example, if you click on ABA, it shows you the graph with ABA as the starting pattern (thus removing its "brothers" ABC and AB-lost).
     """)
 
-    fp = open(os.path.join(os.curdir, "data", "sunburst",  "sunburst_unconstrained.json"), "r")
+    fp = open(os.path.join(os.curdir, "../data", "sunburst", "sunburst_unconstrained.json"), "r")
 
     data = json.load(fp)
-    fp = open(os.path.join(os.curdir, "data", "sunburst", "sunburst_beginning.json"), "r")
+    fp = open(os.path.join(os.curdir, "../data", "sunburst", "sunburst_beginning.json"), "r")
 
     databeg = json.load(fp)
     team = st.selectbox("Select the team", data.keys())

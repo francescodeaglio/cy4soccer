@@ -146,13 +146,14 @@ def getTeams():
     Returns all the teams that have played Euro2020
     :return: a list of teams
     """
-    return {'Austria',
-     'Belgium',
+    return [
+        'Belgium',
+    'Finland',
+    'Austria',
      'Croatia',
      'Czech_Republic',
      'Denmark',
      'England',
-     'Finland',
      'France',
      'Germany',
      'Hungary',
@@ -169,13 +170,15 @@ def getTeams():
      'Switzerland',
      'Turkey',
      'Ukraine',
-     'Wales'}
+     'Wales']
 def getGamesList():
     """
     Returns the list of euro2020 games
     :return: list of euro2020 games
     """
-    return {'Finland-Russia': 3788753,
+    return {
+ 'Denmark-Belgium': 3788757,
+ 'Finland-Russia': 3788753,
  'Switzerland-Turkey': 3788765,
  'Belgium-Italy': 3795107,
  'England-Denmark': 3795221,
@@ -193,7 +196,6 @@ def getGamesList():
  'Hungary-France': 3788763,
  'England-Scotland': 3788759,
  'Ukraine-North Macedonia': 3788758,
- 'Denmark-Belgium': 3788757,
  'England-Croatia': 3788745,
  'Netherlands-Ukraine': 3788746,
  'France-Switzerland': 3794691,
