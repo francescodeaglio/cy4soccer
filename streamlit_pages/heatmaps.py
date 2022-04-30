@@ -1,3 +1,5 @@
+#no longer used, now moved in pattern_positions
+
 from streamlit_pages.neo4j_utils.App_grids import App_grids
 import streamlit as st
 from numpy.linalg import LinAlgError
@@ -121,6 +123,7 @@ You can specify below the match, the team and the bandwidth of the kernels (rule
         if st.form_submit_button("Create the plot"):
 
             st.warning("The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds.")
+
             st.success("Blue = starting position Orange = finish position")
 
             globs = []

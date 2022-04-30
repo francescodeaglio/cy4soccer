@@ -1,8 +1,11 @@
+#no longer used, now moved in pattern_positions
+
 import streamlit as st
 from streamlit_pages.neo4j_utils.utils import getTeams, getGamesList, cypherify_grids
 from mplsoccer import Pitch
 from streamlit_pages.neo4j_utils.App_grids import App_grids
 from numpy import ceil
+
 
 def get_map_data(pattern, team, match, app):
     """
@@ -108,7 +111,6 @@ def flow():
 
             st.warning(
                 "The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds.")
-
 
             globs = []
             pitch = Pitch(pitch_type='statsbomb', pitch_color='#22312b', line_color='#c7d5cc')

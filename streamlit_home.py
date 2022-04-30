@@ -1,33 +1,25 @@
 import streamlit as st
-from streamlit_pages.flow import flow
 from streamlit_pages.geovisualization import geovisualization
 from streamlit_pages.intro import intro
 from streamlit_pages.pattern_finder import pattern_finder
 from streamlit_pages.pca import pca_page
-from streamlit_pages.heatmaps import heatmap
 from streamlit_pages.sunburst_mongo import sunburst_mongo
 from streamlit_pages.writeYourOwnQuery import wyoq
-from streamlit_pages.arrows import arrows
+from streamlit_pages.pattern_positions import pattern_positions
 
 
 if __name__ == '__main__':
     st.sidebar.title("Cy4soccer")
     page = st.sidebar.selectbox("Select the page",
-                                ["Intro", "Pattern Finder", "Sunburst diagram",
-                                 "Geovisualization", "PCA", "Heatmap", "Arrows",
-                                 "Flow", "Write your own query", "Credits"])
+                                ["Intro", "Pattern Finder", "Sunburst diagram", "Pattern positions",
+                                 "Geovisualization", "PCA", "Write your own query", "Credits"])
 
     if page == "Intro":
         intro()
 
-    if page == "Arrows":
-        arrows()
 
-    if page == "Flow":
-        flow()
-    
-    if page == "Heatmap":
-        heatmap()
+    if page == "Pattern positions":
+        pattern_positions()
 
     if page == "Write your own query":
         wyoq()
