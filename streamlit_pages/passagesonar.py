@@ -202,7 +202,7 @@ def create_pass_df(players, matrix, team_dict):
 def passagesonar():
 
     st.title("Passing Sonar")
-    st.write("""On this page you can create the sonar passage for the chosen match and team. 
+    st.write("""On this page you can create the passing sonar for the chosen match and team. 
 Players are positioned on the pitch according to their average position when they have made passes. In addition, the display of the team pass-net is added to complete the graph.""")
     uri = st.secrets["uri"]
 
