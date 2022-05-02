@@ -11,7 +11,6 @@ def sunburst():
 
     st.title("Sunburst diagrams")
 
-    st.success("Developed by Francesco Deaglio and Filippo Costa")
     st.write("""
     The idea of this diagram is to see how the various passage networks evolve. For example, an AB network can continue by becoming ABA, ABC or by changing possession (lost ball, shot, end of game...).
 
@@ -68,3 +67,6 @@ The graphs are interactive. For example, if you click on ABA, it shows you the g
         color=prefixesb
     )
     st.plotly_chart(figb, use_container_width=True)
+
+    with st.expander("Credits"):
+            st.text("""Developed by Francesco Deaglio and Filippo Costa""")

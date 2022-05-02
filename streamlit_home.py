@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_pages.geovisualization import geovisualization
 from streamlit_pages.intro import intro
+from streamlit_pages.passagesonar import passagesonar
 from streamlit_pages.pattern_finder import pattern_finder
 from streamlit_pages.pca import pca_page
 from streamlit_pages.sunburst_mongo import sunburst_mongo
@@ -11,11 +12,14 @@ from streamlit_pages.pattern_positions import pattern_positions
 if __name__ == '__main__':
     st.sidebar.title("Cy4soccer")
     page = st.sidebar.selectbox("Select the page",
-                                ["Intro", "Pattern Finder", "Sunburst diagram", "Pattern positions",
+                                ["Intro", "Pattern Finder", "Sunburst diagram", "Pattern positions", "Passage Sonar",
                                  "Geovisualization", "PCA", "Write your own query", "Credits"])
 
     if page == "Intro":
         intro()
+
+    if page == "Passage Sonar":
+        passagesonar()
 
 
     if page == "Pattern positions":
@@ -50,5 +54,6 @@ Thanks to Filippo Costa for hosting and precious help in the development.
 
 To see the code you can refer to my github page www.github.com/francescodeaglio/cy4soccer where you can also find a notebook with the preprocessing, done in Jsoniq/Rumble.
         """)
+
 
 
