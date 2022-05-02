@@ -103,7 +103,7 @@ class App:
         :param player: player's name
         :return: a tuple with (avg_x, avg_y)
         """
-        query = """MATCH r = (A:""" + team + """)-[p:PASS]-(B:""" + team + """) WHERE p.match_id = """ + str(
+        query = """MATCH r = (A:""" + team + """)-[p:PASS]->(B:""" + team + """) WHERE p.match_id = """ + str(
             match_id) + ' AND A.name = "' + player + '" RETURN AVG(p.location[0]) as avg_x, AVG(p.location[1]) as avg_y'
         r = self.query(query)
         return (r[0]["avg_x"],r[0]["avg_y"])
