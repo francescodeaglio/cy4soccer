@@ -12,7 +12,7 @@ from streamlit_pages.pattern_positions import pattern_positions
 if __name__ == '__main__':
     st.sidebar.title("Cy4soccer")
     page = st.sidebar.selectbox("Select the page",
-                                ["Intro", "Pattern Finder", "Sunburst diagram", "Pattern positions", "Passage Sonar",
+                                ["Intro", "Pattern Finder", "Sunburst diagram", "Pattern positions", "Passing Sonar",
                                  "Geovisualization", "PCA", "Write your own query", "Credits"])
 
     if page == "Intro":

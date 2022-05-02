@@ -131,7 +131,7 @@ def get_team_sonar(team_dict, TEAM, MATCH_ID, app, player_to_jersey_mapping, df,
         axs["pitch"].text(loc[0], 0, player_to_jersey_mapping[player_name], size = 50,ha="center", va='center', weight='bold', color= "yellow", path_effects=[path_effects.Stroke(linewidth=1.5, foreground='black'),
                        path_effects.Normal()], zorder=3)"""
 
-    axs['title'].text(0.5, 0.50, TEAM + " PASSAGE SONAR", color='#c7d5cc', va='center', ha='center', fontsize=100)
+    axs['title'].text(0.5, 0.50, TEAM + " PASSING SONAR", color='#c7d5cc', va='center', ha='center', fontsize=100)
 
     axs['title'].text(0.5, 0.001, "vs "+opposite_team, color='#c7d5cc', va='center', ha='center', fontsize=45)
 
@@ -201,7 +201,7 @@ def create_pass_df(players, matrix, team_dict):
 
 def passagesonar():
 
-    st.title("Passage Sonar")
+    st.title("Passing Sonar")
     st.write("""On this page you can create the sonar passage for the chosen match and team. 
 Players are positioned on the pitch according to their average position when they have made passes. In addition, the display of the team pass-net is added to complete the graph.""")
     uri = st.secrets["uri"]
