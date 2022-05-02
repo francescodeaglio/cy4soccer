@@ -18,7 +18,7 @@ if __name__ == '__main__':
     if page == "Intro":
         intro()
 
-    if page == "Passage Sonar":
+    if page == "Passing Sonar":
         passagesonar()
 
 
