@@ -1,7 +1,10 @@
 import json
+
+import matplotlib
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import pymongo
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib.projections import get_projection_class
 from matplotlib.patches import Arc
@@ -39,8 +42,7 @@ class App:
         return [row for row in result]
 
 
-def players_with_coordinates(team, match_id, app, x_list=[0, 44, 32, 32, 44, 56, 66, 66, 87, 87, 100],
-                             y_list=[45, 10, 35, 55, 80, 45, 25, 65, 15, 75, 45]):
+def players_with_coordinates(team, match_id, app,):
     team_dict = {}
     player_number_mapping = {}
 
@@ -86,7 +88,7 @@ def Passer(player, match_id, app):
 
 
 def plot_inset(width, axis_main, data, x, y, number):
-    ax_sub = inset_axes(axis_main, width=width * 5, height=width * 5, loc=10,
+    ax_sub = inset_axes(axis_main, width=width * 6, height=width * 6, loc=10,
                         bbox_to_anchor=(x, y),
                         bbox_transform=axis_main.transData,
                         borderpad=0.0, axes_class=get_projection_class("polar"))
@@ -108,12 +110,14 @@ def plot_inset(width, axis_main, data, x, y, number):
         bar.set_facecolor(plt.cm.YlOrBr(r))
         bar.set_alpha(1)
 
-    ax_sub.text(0, 0, str(number), size=40, ha="center", va='center', weight='bold', color="#a5fc03",
+    ax_sub.text(0, 0, str(number), size=50, ha="center", va='center', weight='bold', color="#a5fc03",
                 path_effects=[path_effects.Stroke(linewidth=10, foreground='black'),
                               path_effects.Normal()], zorder=3)
 
 
-def get_team_sonar(team_dict, TEAM, MATCH_ID, app, player_to_jersey_mapping, df, width=.8, opposite_team = None):
+def get_team_sonar(team_dict, TEAM, MATCH_ID, app, player_to_jersey_mapping, df, width=.8, opposite_team = None, passer_df = None):
+
+
     pitch = Pitch(pitch_type='statsbomb', pitch_color='#22312b', line_color='#c7d5cc')
     fig, axs = pitch.grid(figheight=30, title_height=0.06, endnote_space=0,
                           axis=False,
@@ -123,13 +127,20 @@ def get_team_sonar(team_dict, TEAM, MATCH_ID, app, player_to_jersey_mapping, df,
     pitch.lines(df["fromx"], df["fromy"], df["tox"], df["toy"], lw=df["count"] / 3, ax=axs["pitch"], color="white",
                 zorder=1)
 
-    for player_name, loc in team_dict.items():
-        plot_inset(width, axs["pitch"], data=Passer(player_name, MATCH_ID, app), x=loc[0], y=loc[1],
-                   number=player_to_jersey_mapping[player_name])
+    if passer_df is None:
+        passer_df = {}
+        for player_name, loc in team_dict.items():
+            data = Passer(player_name, MATCH_ID, app)
+            plot_inset(width, axs["pitch"], data=data, x=loc[0], y=loc[1],
+                       number=player_to_jersey_mapping[player_name])
+            passer_df[player_name] = data.to_json()
+    else:
+        for player_name, loc in team_dict.items():
+            data = pd.read_json(passer_df[player_name])
+            plot_inset(width, axs["pitch"], data=data, x=loc[0], y=loc[1],
+                       number=player_to_jersey_mapping[player_name])
 
-    """for player_name, loc in team_dict.items():
-        axs["pitch"].text(loc[0], 0, player_to_jersey_mapping[player_name], size = 50,ha="center", va='center', weight='bold', color= "yellow", path_effects=[path_effects.Stroke(linewidth=1.5, foreground='black'),
-                       path_effects.Normal()], zorder=3)"""
+
 
     axs['title'].text(0.5, 0.50, TEAM + " PASSING SONAR", color='#c7d5cc', va='center', ha='center', fontsize=100)
 
@@ -156,6 +167,8 @@ def get_team_sonar(team_dict, TEAM, MATCH_ID, app, player_to_jersey_mapping, df,
                         va='center', ha='right', fontsize=25)
 
     st.pyplot(fig)
+
+    return passer_df
 
 
 def get_passagenetwork(players, team, match_id, app):
@@ -198,6 +211,40 @@ def create_pass_df(players, matrix, team_dict):
                 diz["toy"].append(team_dict[player2][1])
     return pd.DataFrame(diz)
 
+def get_data_from_mongo(team, match):
+    """
+    FUnction to perform the query on mongoDb. Auth credentials are hidden.
+    :param team: team
+    :param match: match_id
+    :return: the queried data from mongo
+    """
+    client = pymongo.MongoClient(st.secrets["mongostring"])
+    db = client.soccer_analytics
+    col = db["passing_sonar"]
+    ret = col.find_one({"team": team, "match_id": match})
+
+    if ret is not None:
+        return ret["data"]
+    else:
+        return None
+
+def cache_on_mongo(team, match, team_dict, player_to_jersey_mapping, df, passer_df):
+
+    client = pymongo.MongoClient(st.secrets["mongostring"])
+    db = client.soccer_analytics
+    col = db["passing_sonar"]
+
+    col.insert_one({
+        "team":team,
+        "match_id":match,
+        "data":{
+            "team_dict":team_dict,
+            "player_to_jersey_mapping":player_to_jersey_mapping,
+            "df":df.to_json(),
+            "passer_df":passer_df
+        }
+    })
+
 
 def passagesonar():
 
@@ -227,15 +274,32 @@ Players are positioned on the pitch according to their average position when the
                 opposite_team.remove(team)
             except:
                 pass
+            #check if we have already computed the needed data
+            cached = get_data_from_mongo(team=TEAM, match=MATCH_ID)
             s = st.empty()
-            s.write("Getting players coordinates...")
-            team_dict, player_to_jersey_mapping = players_with_coordinates(TEAM, MATCH_ID, app)
-            s.write("Evaluating passage matrix...")
-            pass_matrix = get_passagenetwork(list(player_to_jersey_mapping.keys()), TEAM, MATCH_ID, app)
-            df = create_pass_df(list(player_to_jersey_mapping.keys()), pass_matrix, team_dict)
-            s.write("Creating the chart...")
-            get_team_sonar(team_dict, TEAM, MATCH_ID, app, player_to_jersey_mapping, df, opposite_team = opposite_team[0])
-            s.write()
+
+            if cached is None:
+
+                s.write("Getting players coordinates...")
+                team_dict, player_to_jersey_mapping = players_with_coordinates(TEAM, MATCH_ID, app)
+
+                s.write("Evaluating passage matrix...")
+                pass_matrix = get_passagenetwork(list(player_to_jersey_mapping.keys()), TEAM, MATCH_ID, app)
+                df = create_pass_df(list(player_to_jersey_mapping.keys()), pass_matrix, team_dict)
+
+                s.write("Creating the chart...")
+                passer_df = get_team_sonar(team_dict, TEAM, MATCH_ID, app, player_to_jersey_mapping, df, opposite_team = opposite_team[0])
+                s.write()
+                cache_on_mongo(TEAM, MATCH_ID, team_dict, player_to_jersey_mapping, df, passer_df)
+
+            else:
+                s.write("The data for this match has already been calculated. The visualisation will be much faster.")
+                team_dict = cached["team_dict"]
+                player_to_jersey_mapping = cached["player_to_jersey_mapping"]
+                df = pd.read_json(cached["df"])
+                passer_df = cached["passer_df"]
+                get_team_sonar(team_dict, TEAM, MATCH_ID, app, player_to_jersey_mapping, df,
+                               opposite_team=opposite_team[0], passer_df = passer_df)
 
     with st.expander("Credits"):
         st.text("""The tool is created from the $424 and $416 snippets from the 
