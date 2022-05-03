@@ -64,7 +64,7 @@ def players_with_coordinates(team, match_id, app,):
 
 
 def Passer(player, match_id, app):
-    string = 'MATCH (a)-[p:PASS]->(b) WHERE a.name = "{player}" and p.match_id = {game} and p.order <> p.possession_length RETURN p.angle, p.length'
+    string = 'MATCH (a)-[p:PASS]->(b) WHERE a.name = "{player}" and p.match_id = {game} RETURN p.angle, p.length'
     string = string.format(player=player, game=match_id)
 
     passages = app.find_pattern(string)
