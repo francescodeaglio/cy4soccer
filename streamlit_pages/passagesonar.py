@@ -139,10 +139,13 @@ def get_team_sonar(team_dict, TEAM, MATCH_ID, app, player_to_jersey_mapping, df,
             data = pd.read_json(passer_df[player_name])
             plot_inset(width, axs["pitch"], data=data, x=loc[0], y=loc[1],
                        number=player_to_jersey_mapping[player_name])
+    team_print = TEAM
+    if TEAM == "MACEDONIA_REPUBLIC_OF":
+        team_print = "North Macedonia".upper()
+    elif TEAM == "CZECH_REPUBLIC":
+        team_print = "Czech Republic".upper()
 
-
-
-    axs['title'].text(0.5, 0.50, TEAM + " PASSING SONAR", color='#c7d5cc', va='center', ha='center', fontsize=100)
+    axs['title'].text(0.5, 0.50, team_print + " PASSING SONAR", color='#c7d5cc', va='center', ha='center', fontsize=100)
 
     axs['title'].text(0.5, 0.001, "vs "+opposite_team, color='#c7d5cc', va='center', ha='center', fontsize=45)
 
@@ -271,6 +274,10 @@ Players are positioned on the pitch according to their average position when the
         if st.form_submit_button("Create the plot"):
             try:
                 opposite_team = game.split("-")
+                if TEAM == "MACEDONIA_REPUBLIC_OF":
+                    team = "North Macedonia"
+                elif TEAM == "CZECH_REPUBLIC":
+                    team = "Czech Republic"
                 opposite_team.remove(team)
             except:
                 pass
