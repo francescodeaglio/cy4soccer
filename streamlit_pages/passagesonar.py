@@ -80,7 +80,9 @@ def Passer(player, match_id, app):
     df1["Bin_Mids"] = df1["binned"].apply(lambda x: x.mid)
     df1 = df1[:-1]
 
-    A = df1.groupby("Bin_Mids", as_index=False, dropna=False).mean()
+    A= df1.groupby("Bin_Mids", as_index=False, dropna=False).mean()
+    B = df1.groupby("Bin_Mids", as_index=False, dropna=False).count()
+    A["count"] = B["pass.length"]
     A = A.dropna(axis=0)
     # A["Incomplete"] = 1-A["Complete"]
 
@@ -96,7 +98,7 @@ def plot_inset(width, axis_main, data, x, y, number):
     ax_sub.set_zorder(2)
     theta = data["Bin_Mids"]
     radii = data["pass.length"]
-    color_metric = data["pass.length"]
+    color_metric = data["count"]
     bars = ax_sub.bar(theta, radii, width=0.3, bottom=0.0, zorder=2)
 
     ax_sub.patch.set_alpha(0)
@@ -106,8 +108,8 @@ def plot_inset(width, axis_main, data, x, y, number):
     ax_sub.xaxis.grid(False)
     ax_sub.spines['polar'].set_visible(False)
 
-    for r, bar in zip(theta, bars):
-        bar.set_facecolor(plt.cm.YlOrBr(r))
+    for r, bar, color in zip(theta, bars, color_metric):
+        bar.set_facecolor(plt.cm.YlOrBr(color*20))
         bar.set_alpha(1)
 
     ax_sub.text(0, 0, str(number), size=50, ha="center", va='center', weight='bold', color="#a5fc03",
