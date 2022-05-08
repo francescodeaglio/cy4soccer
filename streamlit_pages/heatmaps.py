@@ -98,9 +98,9 @@ def heatmap():
 
     st.write("""
     
-    Another interesting visualization is to understand how passage patterns evolve in space. To do this we have available, in each passage, the location from which it starts and the one in which it arrives.
+    Another interesting visualization is to understand how passing motifs evolve in space. To do this we have available, in each passage, the location from which it starts and the one in which it arrives.
 
-In this page it is possible to visualize this information for all the passage patterns of length four. It is produced a table of 24 graphs in which each row is a different passage pattern and each column is the position of departure and arrival of the passages (p0, p1, p2, where passage pattern is X-[p0]->Y-[p1]->W-[p2]->Z where XYWZ depend on pattern that is being matched). An overall column in the pattern and an overall column in the passage are also added.
+In this page it is possible to visualize this information for all the passing motifs of length four. It is produced a table of 24 graphs in which each row is a different passing motif and each column is the position of departure and arrival of the pass(p0, p1, p2, where passing motif is X-[p0]->Y-[p1]->W-[p2]->Z where XYWZ depend on pattern that is being matched). An overall column in the pattern and an overall column in the passes are also added.
 
 You can specify below the match, the team and the bandwidth of the kernels (rule of thumb: the lower the value, the less influence the points have on each other, the more the chart is composed of disconnected clusters)
     

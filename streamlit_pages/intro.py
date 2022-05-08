@@ -189,7 +189,7 @@ RETURN g,a,r
     with st.expander("PASS, relationship between players"):
 
         st.write("""
-        The passes are the reason this model was built. Every passage carried out is a
+        The passes are the reason this model was built. Every pass carried out is a
         relationship that connects the passer to the receiver.
         
         

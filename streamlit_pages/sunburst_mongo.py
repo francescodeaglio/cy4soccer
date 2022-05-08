@@ -59,7 +59,7 @@ def sunburst_mongo():
 
 
     st.write("""
-    The idea of this diagram is to see how the various passage networks evolve. For example, an AB network can continue by becoming ABA, ABC or by changing possession (lost ball, shot, end of game...).
+    The idea of this diagram is to see how the various passing motifs evolve. For example, an AB network can continue by becoming ABA, ABC or by changing possession (lost ball, shot, end of game...).
 
 In order to represent this, we have used the sunburst diagram. To speed up the GUI we have pre-calculated the values for all teams and all games. Data is "cached" on MongoDb.
    

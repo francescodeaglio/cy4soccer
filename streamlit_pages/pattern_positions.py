@@ -161,14 +161,14 @@ def pattern_positions():
 
     st.markdown("""
 
-    Another interesting visualization is to understand how passage patterns evolve in space. To do this we have available, in each passage, the location from which it starts and the one in which it arrives.
+    Another interesting visualization is to understand how passing motifs evolve in space. To do this we have available, in each passage, the location from which it starts and the one in which it arrives.
 
-In this page it is possible to visualize this information for all the passage patterns of length four. It is produced a table of 24 graphs in which each row is a different passage pattern and each column is the position of departure and arrival of the passages (p0, p1, p2, where passage pattern is """)
+In this page it is possible to visualize this information for all the passing motifs of length four. It is produced a table of 24 graphs in which each row is a different passing motif and each column is the position of departure and arrival of the passes (p0, p1, p2, where passing motif is """)
     st.code("X-[p0]->Y-[p1]->W-[p2]->Z")
 
 
 
-    st.markdown(""" where _XYWZ_ depend on pattern that is being matched). An overall column in the pattern and an overall column in the passage are also added.
+    st.markdown(""" where _XYWZ_ depend on pattern that is being matched). An overall column in the pattern and an overall column in the pass are also added.
 
 
 
@@ -178,7 +178,7 @@ There are 3 possibile visualization of the data described above, for each of the
 You can specify below the match, the team and the bandwidth of the kernels (rule of thumb: the lower the value, the less influence the points have on each other, the more the chart is composed of disconnected clusters)
 
 **Flow**:
-In this graph the field is divided into bins and the passages coming from that area are grouped to define the color of the cell (simply defined by the number of passages started from that cell) and the direction of the arrow (which points in the average direction of the passages started from that cell). You can specify the number of horizontal and vertical bins.
+In this graph the field is divided into bins and the passes coming from that area are grouped to define the color of the cell (simply defined by the number of passes started from that cell) and the direction of the arrow (which points in the average direction of the passes started from that cell). You can specify the number of horizontal and vertical bins.
 
 **Arrows**:
 Each pass is simply represented as an arrow that connects the starting and ending point. No extra parameters are required here.

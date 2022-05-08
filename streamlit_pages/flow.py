@@ -92,7 +92,7 @@ def flow():
     
     On this page you can see exactly the same information as in the "Heatmaps" section, but represented differently. 
     
-    In this graph the field is divided into bins and the passages coming from that area are grouped to define the color of the cell (simply defined by the number of passages started from that cell) and the direction of the arrow (which points in the average direction of the passages started from that cell)""")
+    In this graph the field is divided into bins and the passes coming from that area are grouped to define the color of the cell (simply defined by the number of passes started from that cell) and the direction of the arrow (which points in the average direction of the passes started from that cell)""")
 
     with st.form("inputs"):
         c1, c2 = st.columns(2)

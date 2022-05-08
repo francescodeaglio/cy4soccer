@@ -290,7 +290,7 @@ Players are positioned on the pitch according to their average position when the
                 s.write("Getting players coordinates...")
                 team_dict, player_to_jersey_mapping = players_with_coordinates(TEAM, MATCH_ID, app)
 
-                s.write("Evaluating passage matrix...")
+                s.write("Evaluating passing matrix...")
                 pass_matrix = get_passagenetwork(list(player_to_jersey_mapping.keys()), TEAM, MATCH_ID, app)
                 df = create_pass_df(list(player_to_jersey_mapping.keys()), pass_matrix, team_dict)
 

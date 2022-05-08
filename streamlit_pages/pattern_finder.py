@@ -14,7 +14,7 @@ def cypherify(string, team=None, match_id=None, extra_filter=None):
     """
     letters = list(string)
     if not isNet(letters):
-        st.error(string+" is an invalid passage network!")
+        st.error(string+" is an invalid passing motif!")
         return None
 
     if team:

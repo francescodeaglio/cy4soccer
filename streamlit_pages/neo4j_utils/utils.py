@@ -79,8 +79,8 @@ def isNet(array):
 
 def pass_net_check(i, n, vect, check):
     """
-    Function to check whether a given array describes a valid passage pattern.
-    Not optimal, it firstly creates all the possibile passage patterns and then checks if the one given in among them
+    Function to check whether a given array describes a valid passing motif.
+    Not optimal, it firstly creates all the possibile passing motifs and then checks if the one given in among them
     :param i:
     :param n:
     :param vect:
@@ -241,7 +241,7 @@ def cypherify(string, team = None, extra_filter = None):
     """
     letters = list(string)
     if not isNet(letters):
-        st.error(string+" is an invalid passage network!")
+        st.error(string+" is an invalid passing motif!")
         return None
 
 

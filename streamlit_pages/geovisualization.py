@@ -110,7 +110,7 @@ class App:
 
     def compute_number_of_pass(self, team, match_id, player1, player2):
         """
-        Function to compute the number of passages between a given couple of players
+        Function to compute the number of passes between a given couple of players
         :param team: the team of the players
         :param match_id: tha match
         :param player1: first player (symmetric)
@@ -183,7 +183,7 @@ def create_pitchdf(stadium):
 
 def compute_matrix(team, match_id, players, app, placeholder = st):
     """
-    Function to compute the matrix of passages (ie matrix[i][j] = number of passages between player i and j)
+    Function to compute the matrix of pass(ie matrix[i][j] = number of passbetween player i and j)
     :param team:
     :param match_id:
     :param players:
@@ -267,7 +267,7 @@ def cache_on_mongo(team, match, df):
 
 def show_matrix(matrix, players):
     """
-    Util function to display the passage matrix
+    Util function to display the passmatrix
     :param matrix:
     :param players:
     :return:
@@ -284,7 +284,7 @@ def show_positions(positions, players):
 def create_df(matrix, players, positions):
     """
     Function to create the dataframe used for the visualization.
-    It takes the matrix of passages and replaces the player indexes with their average position on the real pitch
+    It takes the matrix of passand replaces the player indexes with their average position on the real pitch
     :param matrix:
     :param players:
     :param positions:
@@ -420,9 +420,9 @@ def geovisualization():
     """
     st.title("Geovisualization")
 
-    st.write("""In this screen you can see an interactive version of the passage network.
+    st.write("""In this screen you can see an interactive version of the passing network.
     
-The passages are mapped geographically to the stadium where the match was played (not that it was needed but it was a good excuse to learn how to use pydeck :) ).
+The passare mapped geographically to the stadium where the match was played (not that it was needed but it was a good excuse to learn how to use pydeck :) ).
 
 The map is interactive and has tooltips when passing over the arches. 
      
@@ -455,7 +455,7 @@ The colourscale starts from blue (few passes between that pair of players) and g
                 # Getting stadium
                 stadium = app.get_stadium(MATCH_ID)
                 # matrix of passages. Since it's symmetric, only the lower part is computed
-                st.write("Evaluating the number of passages between every couple of players")
+                st.write("Evaluating the number of passbetween every couple of players")
                 placeholder = st.empty()
                 matrix = compute_matrix(TEAM, MATCH_ID, starters, app, placeholder)
 
@@ -495,7 +495,7 @@ The colourscale starts from blue (few passes between that pair of players) and g
             center = get_center(stadium)
             view_state = pdk.ViewState(latitude=center[0], longitude=center[1], bearing=0, pitch=0, zoom=17.8, )
 
-            TOOLTIP_TEXT = {"html": "{count} passages between {p1} and {p2}"}
+            TOOLTIP_TEXT = {"html": "{count} passbetween {p1} and {p2}"}
             r = pdk.Deck(layers=layers, initial_view_state=view_state, tooltip=TOOLTIP_TEXT,
                          map_provider="carto", map_style="light"
                          )
