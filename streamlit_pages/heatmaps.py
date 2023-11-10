@@ -94,7 +94,7 @@ def create_map(
     for idx, ax in enumerate(axs["pitch"].flat):
         name = f"{names[idx]}"
         if show_start:
-            kdeplot = pitch.kdeplot(
+            pitch.kdeplot(
                 glob[idx]["x"]["start"],
                 glob[idx]["y"]["start"],
                 ax=ax,
@@ -104,7 +104,7 @@ def create_map(
                 cmap=cmr.arctic,
             )
         if show_end:
-            kdeplot2 = pitch.kdeplot(
+            pitch.kdeplot(
                 glob[idx]["x"]["end"],
                 glob[idx]["y"]["end"],
                 ax=ax,

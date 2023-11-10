@@ -115,8 +115,8 @@ def pass_net_check(i, n, vect, check):
         else:
             return False
     else:
-        for l in distinct_letters(vect, i - 2):
-            vect[i - 1] = l
+        for letter in distinct_letters(vect, i - 2):
+            vect[i - 1] = letter
             a = pass_net_check(i + 1, n, vect, check)
             if a:
                 return a

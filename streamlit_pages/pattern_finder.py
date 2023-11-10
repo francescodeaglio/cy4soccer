@@ -172,7 +172,7 @@ def query():
         [
             " and " + letter + '.name = "' + st.session_state["bounding"][letter] + '"'
             for letter in st.session_state["bounding"]
-            if st.session_state["bounding"][letter] is not ""
+            if st.session_state["bounding"][letter] != ""
         ]
     )
     print(extra_filter)

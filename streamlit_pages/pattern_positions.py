@@ -93,7 +93,7 @@ def create_heatmap(
     for idx, ax in enumerate(axs.flat):
         name = f"{names[idx]}"
         if show_start:
-            kdeplot = pitch.kdeplot(
+            pitch.kdeplot(
                 glob[idx]["x"]["start"],
                 glob[idx]["y"]["start"],
                 ax=ax,
@@ -103,7 +103,7 @@ def create_heatmap(
                 cmap=cmr.arctic,
             )
         if show_end:
-            kdeplot2 = pitch.kdeplot(
+            pitch.kdeplot(
                 glob[idx]["x"]["end"],
                 glob[idx]["y"]["end"],
                 ax=ax,
@@ -158,9 +158,9 @@ def create_flowmap(glob, pattern, pitch, titles=None, bins=(6, 4)):
             statistic="count",
             bins=bins,
         )
-        hm = pitch.heatmap(bs_heatmap, ax=ax, cmap="Blues")
+        pitch.heatmap(bs_heatmap, ax=ax, cmap="Blues")
         name = f"{names[idx]}"
-        fm = pitch.flow(
+        pitch.flow(
             glob[idx]["x"]["start"],
             glob[idx]["y"]["start"],
             glob[idx]["x"]["end"],

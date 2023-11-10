@@ -379,7 +379,6 @@ def get_layers(df, dfp, stadium):
     :param stadium:
     :return:
     """
-    GREEN_RGB = [0, 255, 190, 40]
     RED_RGB = [240, 100, 0, 100]
     # javascript snippet to color the arrows based on color column described above
     GET_COLOR_JS = [

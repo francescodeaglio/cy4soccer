@@ -1,19 +1,14 @@
-import json
-import logging
 
-import matplotlib
 import matplotlib.patheffects as path_effects
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pymongo
 import streamlit as st
-from matplotlib.patches import Arc
 from matplotlib.projections import get_projection_class
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from mplsoccer import Pitch
 from neo4j import GraphDatabase
-from neo4j.exceptions import ServiceUnavailable
 
 from streamlit_pages.neo4j_utils.utils import getGamesList, getTeams
 

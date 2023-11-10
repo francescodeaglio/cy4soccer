@@ -26,7 +26,8 @@ def get_map_data(pattern, team, match, app):
 
     glob = []
     for i in range(number_of_rel + 1):
-        glob.append({"x": {"start": [], "end": []}, "y": {"start": [], "end": []}})
+        glob.append({"x": {"start": [], "end": []},
+                     "y": {"start": [], "end": []}})
 
     for row in v:
         for i in range(number_of_rel):
@@ -117,8 +118,7 @@ def arrows():
     st.title("Arrows")
 
     st.write(
-        """
-    
+        """ 
     On this page you can see exactly the same information as in the "Heatmaps" section, but represented differently. 
     
     Each pass in fact does not contribute to create a gaussian density but is simply represented as an arrow that connects the starting and ending point.

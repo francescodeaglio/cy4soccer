@@ -90,9 +90,9 @@ def create_map(glob, pattern, pitch, titles=None, bins=(6, 4)):
             statistic="count",
             bins=bins,
         )
-        hm = pitch.heatmap(bs_heatmap, ax=ax, cmap="Blues")
+        pitch.heatmap(bs_heatmap, ax=ax, cmap="Blues")
         name = f"{names[idx]}"
-        fm = pitch.flow(
+        pitch.flow(
             glob[idx]["x"]["start"],
             glob[idx]["y"]["start"],
             glob[idx]["x"]["end"],
