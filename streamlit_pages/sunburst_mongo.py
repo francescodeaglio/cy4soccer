@@ -47,7 +47,11 @@ def get_data(team, match):
     client = pymongo.MongoClient(st.secrets["mongostring"])
     db = client.soccer_analytics
     col = db["sunburst_cache"]
-    return col.find_one({"team": team, "match_id": match})["data"]
+    res = col.find_one({"team": team, "match_id": match})
+    if res is not None:
+        return res["data"]
+    st.error("Please make sure that the selected team played the selected game.")
+    return None
 
 
 def sunburst_mongo():
@@ -82,9 +86,10 @@ The graphs are interactive. For example, if you click on ABA, it shows you the g
 
         if st.form_submit_button("Create the plot"):
             res = get_data(team, match)
-            fig = get_sunburst(res)
+            if res:
+                fig = get_sunburst(res)
 
-            st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True)
 
     with st.expander("Credits"):
             st.text("""Developed by Francesco Deaglio and Filippo Costa""")

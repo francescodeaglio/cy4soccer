@@ -422,14 +422,14 @@ def geovisualization():
 
     st.write("""In this screen you can see an interactive version of the passing network.
     
-The passare mapped geographically to the stadium where the match was played (not that it was needed but it was a good excuse to learn how to use pydeck :) ).
+The passes are mapped geographically to the stadium where the match was played (not that it was needed but it was a good excuse to learn how to use pydeck :) ).
 
 The map is interactive and has tooltips when passing over the arches. 
      
 The colourscale starts from blue (few passes between that pair of players) and goes up to red (many passes). At the moment only passes between starters are taken into account.""")
     uri = st.secrets["uri"]
 
-    user = "streamlit"
+    user = st.secrets["user"]
     password = st.secrets["password"]
     app = App(uri, user, password)
     with st.form("Input"):
@@ -495,7 +495,7 @@ The colourscale starts from blue (few passes between that pair of players) and g
             center = get_center(stadium)
             view_state = pdk.ViewState(latitude=center[0], longitude=center[1], bearing=0, pitch=0, zoom=17.8, )
 
-            TOOLTIP_TEXT = {"html": "{count} passbetween {p1} and {p2}"}
+            TOOLTIP_TEXT = {"html": "{count} pass between {p1} and {p2}"}
             r = pdk.Deck(layers=layers, initial_view_state=view_state, tooltip=TOOLTIP_TEXT,
                          map_provider="carto", map_style="light"
                          )

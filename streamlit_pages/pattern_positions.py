@@ -65,7 +65,8 @@ def create_heatmap(glob, pattern, pitch, titles=None, bw0=0.3, bw1=0.2, show_sta
         names = [pattern + " : " + "location" + " of p" + str(i) for i in range(number_of_rel)] + [pattern + " Overall"]
     else:
         names = titles
-    for idx, ax in enumerate(axs['pitch'].flat):
+
+    for idx, ax in enumerate(axs.flat):
 
         name = f'{names[idx]}'
         if show_start:
@@ -100,7 +101,7 @@ def create_flowmap(glob, pattern, pitch, titles=None, bins=(6, 4)):
         names = [pattern + " : " + "location" + " of p" + str(i) for i in range(number_of_rel)] + [pattern + " Overall"]
     else:
         names = titles
-    for idx, ax in enumerate(axs['pitch'].flat):
+    for idx, ax in enumerate(axs.flat):
 
         bs_heatmap = pitch.bin_statistic(glob[idx]["x"]["start"], glob[idx]["y"]["start"], statistic='count', bins=bins)
         hm = pitch.heatmap(bs_heatmap, ax=ax, cmap='Blues')
@@ -134,7 +135,7 @@ def create_arrowmap(glob, pattern, pitch, titles=None):
         names = [pattern + " : " + "location" + " of p" + str(i) for i in range(number_of_rel)] + [pattern + " Overall"]
     else:
         names = titles
-    for idx, ax in enumerate(axs['pitch'].flat):
+    for idx, ax in enumerate(axs.flat):
 
         name = f'{names[idx]}'
         pitch.arrows(glob[idx]["x"]["start"], glob[idx]["y"]["start"],
@@ -153,7 +154,7 @@ def pattern_positions():
     Streamlit wrapper
     """
     uri = st.secrets["uri"]
-    user = "streamlit"
+    user = st.secrets["user"]
     password = st.secrets["password"]
     app = App_grids(uri, user, password)
 
@@ -227,7 +228,7 @@ Each pass is simply represented as an arrow that connects the starting and endin
 
             globs = []
 
-            pitch = VerticalPitch(line_color='#cfcfcf', line_zorder=2, pitch_color='#122c3d', figsize=(3, 2))
+            pitch = VerticalPitch(line_color='#cfcfcf', line_zorder=2, pitch_color='#122c3d')#, figsize=(3, 2))
 
 
             for pattern in ["ABAC", "ABAB", "ABCD", "ABCA", "ABCB"]:

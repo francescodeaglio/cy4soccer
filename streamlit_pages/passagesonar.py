@@ -258,7 +258,7 @@ def passagesonar():
 Players are positioned on the pitch according to their average position when they have made passes. In addition, the display of the team pass-net is added to complete the graph.""")
     uri = st.secrets["uri"]
 
-    user = "streamlit"
+    user = st.secrets["user"]
     password = st.secrets["password"]
     app = App(uri, user, password)
     with st.form("Input"):

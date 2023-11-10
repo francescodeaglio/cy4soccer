@@ -1,4 +1,4 @@
-# Cy4soccer
+![Cy4Soccer](media/logo.png)
 
 Cy4soccer is a project developed in parallel with the Soccer Analytics course (ETHZ FS22) which aims to analyse the Euro2020 using a graph database.
 

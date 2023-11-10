@@ -91,7 +91,7 @@ def heatmap():
     """
     uri = st.secrets["uri"]
 
-    user = "streamlit"
+    user = st.secrets["user"]
     password = st.secrets["password"]
     app = App_grids(uri, user, password)
     st.title("Heatmaps")
@@ -127,7 +127,7 @@ You can specify below the match, the team and the bandwidth of the kernels (rule
             st.success("Blue = starting position Orange = finish position")
 
             globs = []
-            pitch = VerticalPitch(line_color='#cfcfcf', line_zorder=2, pitch_color='#122c3d', figsize = (3,2))
+            pitch = VerticalPitch(line_color='#cfcfcf', line_zorder=2, pitch_color='#122c3d')#, figsize = (3,2))
             for pattern in ["ABAC", "ABAB", "ABCD", "ABCA", "ABCB"]:
                 try :
                     a = get_map_data(pattern, team, match, app=app)

@@ -83,7 +83,7 @@ def flow():
     """
     uri = st.secrets["uri"]
 
-    user = "streamlit"
+    user = st.secrets["user"]
     password = st.secrets["password"]
     app = App_grids(uri, user, password)
     st.title("Flow")
