@@ -1,8 +1,9 @@
-import streamlit as st
 import json
 import os
+
 import pandas as pd
 import plotly.express as px
+import streamlit as st
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 

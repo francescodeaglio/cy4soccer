@@ -1,10 +1,12 @@
-from streamlit_pages.neo4j_utils.App_grids import App_grids
-import streamlit as st
-from numpy.linalg import LinAlgError
 import cmasher as cmr
-from streamlit_pages.neo4j_utils.utils import getTeams, getGamesList, cypherify_grids
-from mplsoccer import VerticalPitch, Pitch
+import streamlit as st
+from mplsoccer import Pitch, VerticalPitch
 from numpy import ceil
+from numpy.linalg import LinAlgError
+
+from streamlit_pages.neo4j_utils.App_grids import App_grids
+from streamlit_pages.neo4j_utils.utils import (cypherify_grids, getGamesList,
+                                               getTeams)
 
 
 def get_map_data(pattern, team, match, app):

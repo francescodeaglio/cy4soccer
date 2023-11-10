@@ -1,14 +1,16 @@
-import pymongo
-from pydeck.types import String
-from skimage.transform import ProjectiveTransform
-import numpy as np
-import pydeck as pdk
-import pandas as pd
-from neo4j import GraphDatabase
-import streamlit as st
 import json
 import os
-from streamlit_pages.neo4j_utils.utils import getTeams, getGamesList
+
+import numpy as np
+import pandas as pd
+import pydeck as pdk
+import pymongo
+import streamlit as st
+from neo4j import GraphDatabase
+from pydeck.types import String
+from skimage.transform import ProjectiveTransform
+
+from streamlit_pages.neo4j_utils.utils import getGamesList, getTeams
 
 
 def statsbomb2geo(x, y, stadium="Nya Parken"):

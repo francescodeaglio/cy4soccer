@@ -1,6 +1,7 @@
 import streamlit as st
+
 from streamlit_pages.neo4j_utils.neo4j_app import App
-from streamlit_pages.neo4j_utils.utils import isNet, getGamesList, getTeams
+from streamlit_pages.neo4j_utils.utils import getGamesList, getTeams, isNet
 
 
 def cypherify(string, team=None, match_id=None, extra_filter=None):

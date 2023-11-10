@@ -12,9 +12,10 @@ you need to store gamenumber.json and gamenumber_events.json
 See RumbleDb documentation online
 """
 
-import requests
 import json
 import time
+
+import requests
 
 
 def rumble(line, query, server, outfilename):

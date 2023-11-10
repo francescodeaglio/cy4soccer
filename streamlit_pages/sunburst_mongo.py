@@ -1,9 +1,8 @@
-import streamlit as st
-import pymongo
-
 import plotly.express as px
+import pymongo
+import streamlit as st
 
-from streamlit_pages.neo4j_utils.utils import getTeams, getGamesList
+from streamlit_pages.neo4j_utils.utils import getGamesList, getTeams
 
 
 def get_sunburst(data_in):
