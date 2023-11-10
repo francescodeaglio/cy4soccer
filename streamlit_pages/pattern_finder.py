@@ -148,7 +148,7 @@ def query():
     """
     uri = st.secrets["uri"]
 
-    user = "streamlit"
+    user = "neo4j"
     password = st.secrets["password"]
     app = App(uri, user, password)
 
