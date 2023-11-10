@@ -19,33 +19,39 @@ import time
 
 def rumble(line, query, server, outfilename):
     start = time.time()
-    response = json.loads(requests.post(server, data=query, params={"result-size": 1000}).text)
+    response = json.loads(
+        requests.post(server, data=query, params={"result-size": 1000}).text
+    )
     end = time.time()
     print("Took: %s s" % (end - start))
-    if 'warning' in response:
-        print(json.dumps(response['warning']))
-    if 'values' in response:
+    if "warning" in response:
+        print(json.dumps(response["warning"]))
+    if "values" in response:
         if not outfilename:
-            for e in response['values']:
+            for e in response["values"]:
                 print(json.dumps(e))
                 print()
         if outfilename:
-            with open(outfilename, 'w') as outfile:
-                json.dump(response['values'], outfile)
-    elif 'error-message' in response:
-        return response['error-message']
+            with open(outfilename, "w") as outfile:
+                json.dump(response["values"], outfile)
+    elif "error-message" in response:
+        return response["error-message"]
     else:
         return response
 
 
 def preprocess_lineups(gamenumber, team):
-    server = 'http://localhost:8001/jsoniq'
+    server = "http://localhost:8001/jsoniq"
 
-    rumble_preprocess_lineups = \
-    """
-    let $players := for $doc in json-doc(\"""" + gamenumber + """.json")
+    rumble_preprocess_lineups = (
+        """
+    let $players := for $doc in json-doc(\""""
+        + gamenumber
+        + """.json")
     for $team in $doc[]
-    where $team.team_name eq \""""+team+"""\"
+    where $team.team_name eq \""""
+        + team
+        + """\"
     for $player in $team.lineup[]
     for $pos in $player.positions[]
     return {"name":$player.player_name,
@@ -102,20 +108,34 @@ def preprocess_lineups(gamenumber, team):
             "end": $p.end,
             "starting" : false}
 
-    return ($notstarters, $starters)""".replace("\n", " ")
+    return ($notstarters, $starters)""".replace(
+            "\n", " "
+        )
+    )
 
+    rumble(
+        rumble_preprocess_lineups,
+        rumble_preprocess_lineups,
+        server,
+        "lineup_" + team + ".json",
+    )
 
-
-    rumble(rumble_preprocess_lineups, rumble_preprocess_lineups, server, "lineup_"+team+".json")
 
 def preprocess_passes(gamenumber, team):
-    server = 'http://localhost:8001/jsoniq'
+    server = "http://localhost:8001/jsoniq"
 
-    rumble_preprocess_passes = """
-let $beg := for $doc in json-doc(\""""+gamenumber+"""_events.json")
+    rumble_preprocess_passes = (
+        """
+let $beg := for $doc in json-doc(\""""
+        + gamenumber
+        + """_events.json")
 for $x in $doc[]
 count $c
-where $x."type".name eq "Pass" and $x.possession_team.name eq \""""+team+"""" and $x.team.name eq \""""+team+""""
+where $x."type".name eq "Pass" and $x.possession_team.name eq \""""
+        + team
+        + """" and $x.team.name eq \""""
+        + team
+        + """"
 where $x.pass.recipient.name
 return { "from" : $x.player.name, "to":$x.pass.recipient.name, "possession" : $x.possession, "length": $x.pass.length, "angle": 
         $x.pass.angle, "height":$x.pass.height.name, "timestamp": $x.timestamp, "pattern" : $x.play_pattern.name, 
@@ -135,6 +155,11 @@ return { "from" : $x.from, "to":$x.to, "possession" : $x.possession, "length": $
     
     
     """
+    )
 
-
-    rumble(rumble_preprocess_passes, rumble_preprocess_passes, server, "passes_"+team+".json")
+    rumble(
+        rumble_preprocess_passes,
+        rumble_preprocess_passes,
+        server,
+        "passes_" + team + ".json",
+    )

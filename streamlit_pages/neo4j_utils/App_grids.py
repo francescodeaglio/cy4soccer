@@ -1,8 +1,9 @@
 from neo4j import GraphDatabase
 
+
 class App_grids:
     """
-        Neo4j App to query the graphdb in the arrows, heatmaps and flow section
+    Neo4j App to query the graphdb in the arrows, heatmaps and flow section
     """
 
     def __init__(self, uri, user, password):
@@ -14,7 +15,9 @@ class App_grids:
 
     def find_pattern(self, query_string):
         with self.driver.session() as session:
-            result = session.read_transaction(self._find_and_return_pattern, query_string)
+            result = session.read_transaction(
+                self._find_and_return_pattern, query_string
+            )
             return result
 
     @staticmethod

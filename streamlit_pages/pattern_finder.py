@@ -14,13 +14,13 @@ def cypherify(string, team=None, match_id=None, extra_filter=None):
     """
     letters = list(string)
     if not isNet(letters):
-        st.error(string+" is an invalid passing motif!")
+        st.error(string + " is an invalid passing motif!")
         return None
 
     if team:
-        query = "MATCH (A:"+team+")"
+        query = "MATCH (A:" + team + ")"
         for i in range(len(string) - 1):
-            query += "-[p" + str(i) + ":PASS]->(" + letters[i + 1] + ":"+team+")"
+            query += "-[p" + str(i) + ":PASS]->(" + letters[i + 1] + ":" + team + ")"
     else:
         query = "MATCH (A)"
         for i in range(len(string) - 1):
@@ -28,7 +28,7 @@ def cypherify(string, team=None, match_id=None, extra_filter=None):
 
     query += "\nWHERE "
 
-    #correct order
+    # correct order
     first = True
     for i in range(len(string) - 2):
         if first:
@@ -37,7 +37,7 @@ def cypherify(string, team=None, match_id=None, extra_filter=None):
         else:
             query += " and p" + str(i) + ".order + 1 = p" + str(i + 1) + ".order"
 
-    #same possession
+    # same possession
     first = True
     for i in range(len(string) - 2):
         if first:
@@ -46,7 +46,7 @@ def cypherify(string, team=None, match_id=None, extra_filter=None):
         else:
             query += " and p" + str(i) + ".possession = p" + str(i + 1) + ".possession"
 
-    #same match
+    # same match
     first = True
     for i in range(len(string) - 2):
         if first:
@@ -54,14 +54,18 @@ def cypherify(string, team=None, match_id=None, extra_filter=None):
             first = False
         else:
             query += " and p" + str(i) + ".match_id = p" + str(i + 1) + ".match_id"
-    #bound match
+    # bound match
 
-    query += " and p0.match_id = "+str(match_id)
-    #different players
-    unorderedPairGenerator = ((x, y) for x in set(letters) for y in set(letters) if y > x)
-    query += " and " + " and ".join([x + ".name <>" + " " +y + ".name" for x, y in list(unorderedPairGenerator)])
+    query += " and p0.match_id = " + str(match_id)
+    # different players
+    unorderedPairGenerator = (
+        (x, y) for x in set(letters) for y in set(letters) if y > x
+    )
+    query += " and " + " and ".join(
+        [x + ".name <>" + " " + y + ".name" for x, y in list(unorderedPairGenerator)]
+    )
     if extra_filter:
-        query+= extra_filter
+        query += extra_filter
     query += "\nRETURN A.name"
     s = set(letters)
     s.discard("A")
@@ -92,6 +96,7 @@ def pattern_finder():
     if st.session_state["step"] == 2:
         query()
 
+
 def first_form():
     """
     First page of the streamlit form
@@ -106,7 +111,9 @@ def first_form():
         game = c[0].selectbox("Specify the match: ", games.keys())
         st.session_state["match"] = games[game]
         advanced = c[1].checkbox("Specify player(s) name")
-        st.session_state["only query"] = c[1].checkbox("Show only the query (but not execute it)")
+        st.session_state["only query"] = c[1].checkbox(
+            "Show only the query (but not execute it)"
+        )
         submit = st.form_submit_button("Next step")
     if advanced and submit:
         if len(st.session_state["pattern"]) < 2:
@@ -121,19 +128,26 @@ def first_form():
             st.session_state["step"] = 2
             st.experimental_rerun()
 
+
 def second_form():
     """
     Second page of the streamlit form. Used for advanced filters
     """
 
     with st.form("Advanced"):
-
-        st.write("Searching for pattern "+ st.session_state["pattern"]+" in match " + str(st.session_state["match"]))
+        st.write(
+            "Searching for pattern "
+            + st.session_state["pattern"]
+            + " in match "
+            + str(st.session_state["match"])
+        )
         letters = sorted(list(set(st.session_state["pattern"])))
         c = st.columns(2)
         bounding = {}
         for letter in letters:
-            bounding[letter] = c[(letters.index(letter)) % 2].text_input("Insert player name for " + letter)
+            bounding[letter] = c[(letters.index(letter)) % 2].text_input(
+                "Insert player name for " + letter
+            )
 
         print(bounding)
         st.session_state["bounding"] = bounding
@@ -141,6 +155,7 @@ def second_form():
     if query:
         st.session_state["step"] = 2
         st.experimental_rerun()
+
 
 def query():
     """
@@ -152,10 +167,20 @@ def query():
     password = st.secrets["password"]
     app = App(uri, user, password)
 
-    extra_filter = " ".join( [" and " + letter + '.name = "' + st.session_state["bounding"][letter] + '"' for letter in st.session_state["bounding"] if st.session_state["bounding"][letter] is not ""])
+    extra_filter = " ".join(
+        [
+            " and " + letter + '.name = "' + st.session_state["bounding"][letter] + '"'
+            for letter in st.session_state["bounding"]
+            if st.session_state["bounding"][letter] is not ""
+        ]
+    )
     print(extra_filter)
-    query = cypherify(st.session_state["pattern"], st.session_state["team"], st.session_state["match"], extra_filter)
-
+    query = cypherify(
+        st.session_state["pattern"],
+        st.session_state["team"],
+        st.session_state["match"],
+        extra_filter,
+    )
 
     if query:
         if st.session_state["only query"]:
@@ -163,7 +188,5 @@ def query():
         else:
             app.find_pattern(query, st.session_state["pattern"])
     if st.button("New query"):
-       del st.session_state["step"]
-       st.experimental_rerun()
-
-
+        del st.session_state["step"]
+        st.experimental_rerun()

@@ -1,4 +1,4 @@
-#no longer used, now moved in pattern_positions
+# no longer used, now moved in pattern_positions
 
 from streamlit_pages.neo4j_utils.App_grids import App_grids
 import streamlit as st
@@ -36,15 +36,25 @@ def get_map_data(pattern, team, match, app):
 
     for i in range(number_of_rel):
         for row in v:
-            glob[number_of_rel]["x"]["start"].append(row["p" + str(i) + "." + "location"][0])
-            glob[number_of_rel]["y"]["start"].append(row["p" + str(i) + "." + "location"][1])
-            glob[number_of_rel]["x"]["end"].append(row["p" + str(i) + "." + "end_location"][0])
-            glob[number_of_rel]["y"]["end"].append(row["p" + str(i) + "." + "end_location"][1])
+            glob[number_of_rel]["x"]["start"].append(
+                row["p" + str(i) + "." + "location"][0]
+            )
+            glob[number_of_rel]["y"]["start"].append(
+                row["p" + str(i) + "." + "location"][1]
+            )
+            glob[number_of_rel]["x"]["end"].append(
+                row["p" + str(i) + "." + "end_location"][0]
+            )
+            glob[number_of_rel]["y"]["end"].append(
+                row["p" + str(i) + "." + "end_location"][1]
+            )
 
     return glob
 
 
-def create_map(glob, pattern, pitch, titles=None, bw0=0.3, bw1=0.2, show_start = True, show_end = True):
+def create_map(
+    glob, pattern, pitch, titles=None, bw0=0.3, bw1=0.2, show_start=True, show_end=True
+):
     """
     FUnction to create a grid of heatmaps
     :param glob: data
@@ -59,28 +69,52 @@ def create_map(glob, pattern, pitch, titles=None, bw0=0.3, bw1=0.2, show_start =
     """
     number_of_rel = len(pattern) - 1
 
-    fig, axs = pitch.grid(nrows=int(ceil((number_of_rel + 1) / 4)), ncols=4, space=0.1, figheight=5,
-                          title_height=0, endnote_height=0,  # no title/ endnote
-                          grid_width=0.9, grid_height=0.98, bottom=0.01, left=0.05)
+    fig, axs = pitch.grid(
+        nrows=int(ceil((number_of_rel + 1) / 4)),
+        ncols=4,
+        space=0.1,
+        figheight=5,
+        title_height=0,
+        endnote_height=0,  # no title/ endnote
+        grid_width=0.9,
+        grid_height=0.98,
+        bottom=0.01,
+        left=0.05,
+    )
 
     if not titles:
-        names = [pattern + " : " + "location" + " of p" + str(i) for i in range(number_of_rel)] + [pattern + " Overall"]
+        names = [
+            pattern + " : " + "location" + " of p" + str(i)
+            for i in range(number_of_rel)
+        ] + [pattern + " Overall"]
     else:
         names = titles
-    for idx, ax in enumerate(axs['pitch'].flat):
-
-        name = f'{names[idx]}'
+    for idx, ax in enumerate(axs["pitch"].flat):
+        name = f"{names[idx]}"
         if show_start:
-            kdeplot = pitch.kdeplot(glob[idx]["x"]["start"], glob[idx]["y"]["start"], ax=ax, shade=True, levels=7,
-                                bw_method=bw0, cmap = cmr.arctic)
+            kdeplot = pitch.kdeplot(
+                glob[idx]["x"]["start"],
+                glob[idx]["y"]["start"],
+                ax=ax,
+                shade=True,
+                levels=7,
+                bw_method=bw0,
+                cmap=cmr.arctic,
+            )
         if show_end:
-            kdeplot2 = pitch.kdeplot(glob[idx]["x"]["end"], glob[idx]["y"]["end"], ax=ax, shade=True, levels=7,
-                                bw_method=bw1, cmap = cmr.fall)
+            kdeplot2 = pitch.kdeplot(
+                glob[idx]["x"]["end"],
+                glob[idx]["y"]["end"],
+                ax=ax,
+                shade=True,
+                levels=7,
+                bw_method=bw1,
+                cmap=cmr.fall,
+            )
 
         ax.set_title(name, fontsize=13)
         if idx == number_of_rel:
             break
-
 
     st.pyplot(fig)
 
@@ -96,7 +130,8 @@ def heatmap():
     app = App_grids(uri, user, password)
     st.title("Heatmaps")
 
-    st.write("""
+    st.write(
+        """
     
     Another interesting visualization is to understand how passing motifs evolve in space. To do this we have available, in each passage, the location from which it starts and the one in which it arrives.
 
@@ -104,7 +139,8 @@ In this page it is possible to visualize this information for all the passing mo
 
 You can specify below the match, the team and the bandwidth of the kernels (rule of thumb: the lower the value, the less influence the points have on each other, the more the chart is composed of disconnected clusters)
     
-    """)
+    """
+    )
     with st.form("Inputs"):
         c1, c2 = st.columns(2)
 
@@ -121,24 +157,39 @@ You can specify below the match, the team and the bandwidth of the kernels (rule
             show_end = st.checkbox("Show end position density on the chart", True)
 
         if st.form_submit_button("Create the plot"):
-
-            st.warning("The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds.")
+            st.warning(
+                "The graphic is created from scratch every time and streamlit takes a while to render. The operation can take tens of seconds."
+            )
 
             st.success("Blue = starting position Orange = finish position")
 
             globs = []
-            pitch = VerticalPitch(line_color='#cfcfcf', line_zorder=2, pitch_color='#122c3d')#, figsize = (3,2))
+            pitch = VerticalPitch(
+                line_color="#cfcfcf", line_zorder=2, pitch_color="#122c3d"
+            )  # , figsize = (3,2))
             for pattern in ["ABAC", "ABAB", "ABCD", "ABCA", "ABCB"]:
-                try :
+                try:
                     a = get_map_data(pattern, team, match, app=app)
-                    create_map(a, pattern, pitch=pitch, bw0=bw1, bw1=bw2, show_start= show_start, show_end=show_end)
+                    create_map(
+                        a,
+                        pattern,
+                        pitch=pitch,
+                        bw0=bw1,
+                        bw1=bw2,
+                        show_start=show_start,
+                        show_end=show_end,
+                    )
                     globs.append(a)
                 except LinAlgError:
-                    st.error("Linear algebra error in seaborn library. I think it's due to the fact that there are too few points to calculate the density.")
+                    st.error(
+                        "Linear algebra error in seaborn library. I think it's due to the fact that there are too few points to calculate the density."
+                    )
 
             vertical_glob = []
             for i in range(4):
-                vertical_glob.append({"x": {"start": [], "end": []}, "y": {"start": [], "end": []}})
+                vertical_glob.append(
+                    {"x": {"start": [], "end": []}, "y": {"start": [], "end": []}}
+                )
 
             for glob in globs:
                 for pattern in range(len(glob)):
@@ -147,9 +198,20 @@ You can specify below the match, the team and the bandwidth of the kernels (rule
                     vertical_glob[pattern]["y"]["start"] += glob[pattern]["y"]["start"]
                     vertical_glob[pattern]["y"]["end"] += glob[pattern]["y"]["end"]
 
-            create_map(vertical_glob, "AAAA", pitch,
-                       ["Overall location of p0", "Overall location of p1", "Overall location of p2", "Overall location"], bw0 = bw1, bw1 = bw2, show_start= show_start, show_end=show_end)
+            create_map(
+                vertical_glob,
+                "AAAA",
+                pitch,
+                [
+                    "Overall location of p0",
+                    "Overall location of p1",
+                    "Overall location of p2",
+                    "Overall location",
+                ],
+                bw0=bw1,
+                bw1=bw2,
+                show_start=show_start,
+                show_end=show_end,
+            )
 
             st.balloons()
-
-

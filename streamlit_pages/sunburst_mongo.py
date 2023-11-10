@@ -23,19 +23,13 @@ def get_sunburst(data_in):
         colors.append(res[0:4] if len(res) >= 4 else 12)
 
     prefixes[0] = ""
-    data = dict(
-        patterns=patterns,
-        prefixes=prefixes,
-        values=values
-    )
+    data = dict(patterns=patterns, prefixes=prefixes, values=values)
 
-    fig = px.sunburst(data,
-                      names="patterns",
-                      parents="prefixes",
-                      values="values",
-                      color=prefixes
-                      )
+    fig = px.sunburst(
+        data, names="patterns", parents="prefixes", values="values", color=prefixes
+    )
     return fig
+
 
 def get_data(team, match):
     """
@@ -61,14 +55,15 @@ def sunburst_mongo():
 
     st.title("Sunburst diagrams")
 
-
-    st.write("""
+    st.write(
+        """
     The idea of this diagram is to see how the various passing motifs evolve. For example, an AB network can continue by becoming ABA, ABC or by changing possession (lost ball, shot, end of game...).
 
 In order to represent this, we have used the sunburst diagram. To speed up the GUI we have pre-calculated the values for all teams and all games. Data is "cached" on MongoDb.
    
 The graphs are interactive. For example, if you click on ABA, it shows you the graph with ABA as the starting pattern (thus removing its "brothers" ABC and AB-lost).
-    """)
+    """
+    )
 
     with st.form("Input info"):
         c1, c2 = st.columns(2)
@@ -77,8 +72,11 @@ The graphs are interactive. For example, if you click on ABA, it shows you the g
             team = st.selectbox("Specify Team: ", getTeams()).upper()
 
         with c2:
-            games =  getGamesList()
-            game = st.selectbox("Specify the match: ", ["All games played by the selected team"] + list(games.keys()))
+            games = getGamesList()
+            game = st.selectbox(
+                "Specify the match: ",
+                ["All games played by the selected team"] + list(games.keys()),
+            )
             if game == "All games played by the selected team":
                 match = -1
             else:
@@ -92,4 +90,4 @@ The graphs are interactive. For example, if you click on ABA, it shows you the g
                 st.plotly_chart(fig, use_container_width=True)
 
     with st.expander("Credits"):
-            st.text("""Developed by Francesco Deaglio and Filippo Costa""")
+        st.text("""Developed by Francesco Deaglio and Filippo Costa""")
